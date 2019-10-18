@@ -1,0 +1,218 @@
+<!-- HTML for static distribution bundle build -->
+	<!DOCTYPE html>
+	<html lang="en">
+	  <head>
+	    <meta charset="UTF-8">
+	    <title>TourHunter API Documentation</title>
+        <!--" https://cdnjs.com/libraries/swagger-ui -->
+        <!-- https://www.jsdelivr.com/package/npm/swagger-ui -->
+	    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.23.11/swagger-ui.css" >
+			<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css">
+	    <style>
+	      html
+	      {
+	        box-sizing: border-box;
+	        overflow: -moz-scrollbars-vertical;
+	        overflow-y: scroll;
+	      }
+
+	      *,
+	      *:before,
+	      *:after
+	      {
+	        box-sizing: inherit;
+	      }
+
+	      body
+	      {
+	        margin:0;
+	        background: #fafafa;
+	      }
+
+			  footer
+			  {
+					font-family: "HelveticaNeue-Light", "Helvetica Neue", "RobotoRegular", Arial;
+					display: flex;
+					align-items: center;
+					padding: 62px 0;
+					color: #fff;
+					background-color: #39579A;
+			  }
+
+			  .container
+			  {
+					width: 100%;
+					padding-right: 15px;
+					padding-left: 15px;
+					margin-right: auto;
+					margin-left: auto;
+			  }
+
+			  .row
+			  {
+					display: -ms-flexbox;
+					display: flex;
+					-ms-flex-wrap: wrap;
+					flex-wrap: wrap;
+					margin-right: -15px;
+					margin-left: -15px;
+			  }
+
+			  footer .container
+			  {
+			  	max-width: 960px;
+			  }
+
+			  .mb-4
+			  {
+					margin-bottom: 1.5rem !important;
+			  }
+
+			  .mt-0
+			  {
+					margin-top: 0;
+			  }
+
+			  .col-md-4
+				{
+					position: relative;
+					width: 100%;
+					padding-right: 15px;
+					padding-left: 15px;
+			  }
+
+			  @media (min-width: 768px)
+			  {
+					.col-md-4 {
+						-ms-flex: 0 0 33.333333%;
+						flex: 0 0 33.333333%;
+						max-width: 33.333333%;
+					}
+			  }
+
+			  h5
+			  {
+					font-size: 1.25rem;
+					margin-top: 0;
+			  }
+
+			  ul.group-links
+			  {
+					margin: 0;
+					padding: 0;
+			  }
+
+			  ul.group-links li
+			  {
+					list-style-type: none;
+					margin-bottom: 4px;
+			  }
+
+			  footer .group-links li a
+			  {
+					color: #fff;
+					text-decoration: none;
+			  }
+
+			  footer .group-links li a:hover
+			  {
+					text-decoration: underline;
+			  }
+
+				.socials {
+				    display: flex;
+				    margin-bottom: 1rem;
+				}
+
+				.socials a {
+				    display: flex;
+				    align-items: center;
+				    justify-content: center;
+				    width: 30px;
+				    height: 30px;
+				    margin-right: 16px;
+				    color: #39579A;
+				    text-decoration: none;
+				    background-color: #fff;
+				    border-radius: 50%;
+
+				}
+
+				.socials a:hover {
+				    background-color: #eee;
+				}
+
+	    </style>
+	  </head>
+
+	  <body>
+		<div id="swagger-ui"></div>
+		<footer>
+			<div class="container">
+				<div class="row">
+					<div class="col-md-4 mb-4">
+						<h5 class="mb-4">Contribute</h5>
+						<ul class="group-links">
+							<li><a href="https://github.com/tourhunter-com/api-tourhunter-com/blob/master/CONTRIBUTING.md" target="_blank">Help with API Documentation</a></li>
+							<li><a href="https://github.com/tourhunter-com/api-tourhunter-com/issues" target="_blank">Request a New Feature</a></li>
+							<li><a href="https://github.com/tourhunter-com/api-tourhunter-com/issues" target="_blank">Report a Bug</a></li>
+							<li><a href="https://github.com/tourhunter-com/api-tourhunter-com/issues" target="_blank">Ask a Question</a></li>
+						</ul>
+					</div>
+					<div class="col-md-4 mb-4">
+						<h5 class="mb-4">About</h5>
+						<ul class="group-links">
+							<li><a href="https://tourhunter.com/" target="_blank">TourHunter</a></li>
+							<li><a href="https://help.tourhunter.com/" target="_blank">Help Center</a></li>
+							<li><a href="https://team.tourhunter.com/" target="_blank">Jobs</a></li>
+						</ul>
+					</div>
+					<div class="col-md-4 mb-4">
+						<div class="socials">
+							<a title="Facebook" href="https://www.facebook.com/tourhuntercom" target="_blank"><i class="fab fa-facebook-f"></i></a>
+							<a title="Twitter" href="https://twitter.com/TourHunter_com" target="_blank"><i class="fab fa-twitter"></i></a>
+							<a title="LinkedIn" href="https://www.linkedin.com/company/6457120/" target="_blank" ><i class="fab fa-linkedin-in"></i></a>
+						</div>
+						<p>
+							Copyright © 2015-2019 TourHunter.<br />All rights reserved.
+						</p>
+					</div>
+				</div>
+			</div>
+		</footer>
+
+	    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.23.11/swagger-ui-bundle.js"> </script>
+	    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.23.11/swagger-ui-standalone-preset.js"> </script>
+	    <script>
+    	    window.onload = function() {
+    	      // Begin Swagger UI call region
+    	      const ui = SwaggerUIBundle({
+    	        url: "./openapi.yaml",
+    	        dom_id: '#swagger-ui',
+    	        deepLinking: true,
+    	        presets: [
+    	          SwaggerUIBundle.presets.apis,
+    	        ],
+    	      })
+    	      // End Swagger UI call region
+
+    	      window.ui = ui
+    	    }
+	    </script>
+
+			<!--Start of Tawk.to Script-->
+			<script type="text/javascript">
+					var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+					(function(){
+					var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+					s1.async=true;
+					s1.src='https://embed.tawk.to/5d848a2ac22bdd393bb6d7bb/default';
+					s1.charset='UTF-8';
+					s1.setAttribute('crossorigin','*');
+					s0.parentNode.insertBefore(s1,s0);
+					})();
+			</script>
+			<!--End of Tawk.to Script-->
+
+	  </body>
+	</html>

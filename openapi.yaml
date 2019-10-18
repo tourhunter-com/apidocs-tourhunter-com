@@ -1,0 +1,5535 @@
+openapi: 3.0.0
+info:
+  title: TourHunter API Documentation
+  description: TourHunter API Documentation
+  version: '1.0'
+servers:
+  - url: 'https://pro.tourhunter.com/api/'
+tags:
+  - name: Authorisation
+  - name: Companies
+  - name: Rate Requests
+  - name: Company. Areas
+  - name: Company. Hotels
+  - name: Top Menu. Bookings
+  - name: Top Menu. Bookings. Sessions
+  - name: Top Menu. Bookings. Session Blocks
+  - name: Tour Setup. Step General
+  - name: Tour Setup. Step Tour Options
+  - name: Tour Setup. Step People & Price
+  - name: Tour Setup. Step Payment & Deposit
+  - name: Reports
+    description: Common endpoints for reports page
+  - name: Reports - Views
+    description: Endpoints for report views on reports page
+  - name: Statictics
+    description: Common endpoints for statistics page
+  - name: Charts
+    description: Common endpoints for charts page
+  - name: Booking
+  - name: Booking. Settings
+  - name: Calendar. Session messages
+  - name: Employees
+  - name: Employees. Documents
+  - name: Invoices
+  - name: Invoice
+  - name: Invoice. Payments
+  - name: Customer
+  - name: Checkout
+  - name: My Companies
+  - name: Transfer View
+paths:
+  /signup:
+    post:
+      tags:
+        - Authorisation
+      summary: User signup
+      operationId: signup
+      requestBody:
+        description: Expecting user credentials
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: User email
+                password:
+                  type: string
+                  description: User password
+                repassword:
+                  type: string
+                  description: User password
+                captcha:
+                  type: string
+                  description: Google captcha result
+                returnUrl:
+                  type: string
+                  description: Desired url to redirect after login
+                time_zone:
+                  type: string
+                  description: User time zone
+              required:
+                - email
+                - password
+                - repassword
+                - captcha
+      responses:
+        '200':
+          description: Signup form model
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  email:
+                    type: string
+                    description: User email
+                  password:
+                    type: string
+                    description: User password
+                  repassword:
+                    type: string
+                    description: User password
+                  time_zone:
+                    type: string
+                    description: User time zone
+                  captcha:
+                    type: string
+                    description: Google captcha result
+                  signedUp:
+                    type: boolean
+                    description: Whether signup finished or not
+                  redirectUrl:
+                    type: string
+                    description: Exist when signedUp = true. Url to redirect after signup
+        '422':
+          description: >-
+            Signup form model with errors. Content the same as for response code
+            200 whith additional field $errors
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  $errors:
+                    type: object
+                    description: List of errors
+                example:
+                  $errors:
+                    password:
+                      - Password should contain at least 6 characters.
+  /login:
+    post:
+      tags:
+        - Authorisation
+      summary: User login as system user or agent (on WL)
+      operationId: login
+      requestBody:
+        description: Expecting user credentials
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                step:
+                  type: integer
+                  description: >-
+                    Login form step (1 - Default. Main login form, 2 -
+                    Additional step for seller selection in case of agent login)
+                  enum:
+                    - 1
+                    - 2
+                login:
+                  type: string
+                  description: User email or agent code
+                password:
+                  type: string
+                  description: User or agent password
+                uid:
+                  type: integer
+                  description: >-
+                    Remembered user id if session expire while user has some
+                    opened page in browser
+                returnUrl:
+                  type: string
+                  description: Desired url to redirect after login
+                sellerIdType:
+                  type: string
+                  description: >-
+                    Second step field. Type of selected seller id ("staff" -
+                    real company staff, "virtual" - virtual users)
+                  enum:
+                    - staff
+                    - virtual
+                sellerId:
+                  type: integer
+                  description: Second step field. Selected seller id
+                newSeller:
+                  type: object
+                  description: Second step field. Attributes for new seller creation
+                  properties:
+                    name:
+                      type: string
+                      description: New seller name
+                    phone:
+                      type: string
+                      description: New seller phone
+              required:
+                - step
+                - login
+              example:
+                step: 1
+                login: admin@localhost.com
+                password: 123
+                uid: 15
+      responses:
+        '200':
+          description: Login form model
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  step:
+                    type: integer
+                    description: Login form step
+                    enum:
+                      - 1
+                      - 2
+                  login:
+                    type: string
+                    description: User email or agent code
+                  password:
+                    type: string
+                    description: User or agent password
+                  loggedIn:
+                    type: boolean
+                    description: Whether login finished or not
+                  redirectUrl:
+                    type: string
+                    description: Exist when loggedIn = true. Url to redirect after login
+                  sellerIdType:
+                    type: string
+                    description: Second step field. Type of selected seller id
+                    enum:
+                      - staff
+                      - virtual
+                  sellerId:
+                    type: integer
+                    description: Second step field. Selected seller id
+                  newSeller:
+                    type: object
+                    description: Second step field. Attributes for new seller creation
+                    properties:
+                      name:
+                        type: string
+                        description: New seller name
+                      phone:
+                        type: string
+                        description: New seller phone
+                  sellers:
+                    type: array
+                    description: >-
+                      Second step field. First portion of sellers to show in
+                      available sellers list
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          description: Seller id
+                        fullName:
+                          type: string
+                          description: Seller name
+                        type:
+                          type: string
+                          description: >-
+                            Seller type ("staff" - real company staff, "virtual"
+                            - virtual user)
+                          enum:
+                            - staff
+                            - virtual
+                        company_id:
+                          type: integer
+                          description: Staff seller assigned company
+                        agent_id:
+                          type: integer
+                          description: Virtual seller assigned agent
+                  sellersPortionsCount:
+                    type: integer
+                    description: >-
+                      Second step field. All portions count in available sellers
+                      list
+                  isVirtualCompany:
+                    type: boolean
+                    description: >-
+                      Second step field. Whether agent to login is virtual(true)
+                      or real(false) company
+                  newSellerLink:
+                    type: string
+                    description: >-
+                      Second step field. Link to new seller creation. Empty for
+                      virtual company
+              example:
+                step: 1
+                login: admin@localhost.com
+                password: 123
+                loggedIn: true
+                redirectUrl: /activity
+        '422':
+          description: >-
+            Login form model with errors. Content the same as for response code
+            200 whith additional field $errors
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  $errors:
+                    type: object
+                    description: List of errors
+                example:
+                  $errors:
+                    login:
+                      - Login and password don't match
+                    password:
+                      - Login and password don't match
+  /logout:
+    get:
+      tags:
+        - Authorisation
+      summary: Logout user
+      operationId: logout
+      responses:
+        '200':
+          description: Operation result
+          content:
+            application/json:
+              schema:
+                type: boolean
+                description: Whether operation successful or not
+              example: true
+  /sellers:
+    get:
+      tags:
+        - Authorisation
+      summary: Get paginated available sellers list for login
+      operationId: getSellersForLogin
+      parameters:
+        - name: agentCode
+          in: query
+          description: agent code from login model
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: page to get
+          schema:
+            type: integer
+        - name: search
+          in: query
+          description: sellers names filter
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Available sellers list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sellers:
+                    type: array
+                    description: Portion of sellers to show in available sellers list
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          description: Seller id
+                        fullName:
+                          type: string
+                          description: Seller name
+                        type:
+                          type: string
+                          description: >-
+                            Seller type ("staff" - real company staff, "virtual"
+                            - virtual user)
+                          enum:
+                            - staff
+                            - virtual
+                        company_id:
+                          type: integer
+                          description: Staff seller assigned company
+                        agent_id:
+                          type: integer
+                          description: Virtual seller assigned agent
+                  sellersPortionsCount:
+                    type: integer
+                    description: All portions count in available sellers list
+  /companies/:
+    get:
+      tags:
+        - Companies
+      summary: Get companies list available for user to use
+      operationId: getAvailableCompaniesList
+      responses:
+        '200':
+          description: Available companies list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AvailableCompanyData'
+  /rate-requests/set-status:
+    post:
+      tags:
+        - Rate Requests
+      summary: Rate request by date/tour status changing
+      operationId: setRateRequestByDateStatus
+      requestBody:
+        description: Expecting new status value and rate request id
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                modelId:
+                  type: integer
+                  description: Rate request id to work with
+                status:
+                  type: integer
+                  description: 'Status to set (0 - active, 1 - declined)'
+              required:
+                - modelId
+                - status
+              example:
+                modelId: 15
+                status: 1
+      responses:
+        '200':
+          description: Operation result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Whether operation successful or not
+                  error:
+                    type: string
+                    description: Error text. Added if unable to change status.
+              example:
+                success: true
+  /company/areas:
+    get:
+      tags:
+        - Company. Areas
+      summary: Paginated list of current company areas
+      operationId: getCompanyAreas
+      parameters:
+        - name: page
+          in: query
+          description: page to get
+          schema:
+            type: integer
+        - name: sort
+          in: query
+          description: result sorting
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Paginated areas list
+          headers:
+            X-Pagination-Current-Page:
+              schema:
+                type: integer
+              description: Current page number. Starts from 1.
+            X-Pagination-Page-Count:
+              schema:
+                type: integer
+              description: Total pages count.
+            X-Pagination-Per-Page:
+              schema:
+                type: integer
+              description: Items count per page.
+            X-Pagination-Total-Count:
+              schema:
+                type: integer
+              description: Total items count.
+        '400':
+          description: When current company not found
+    post:
+      tags:
+        - Company. Areas
+      summary: Creaete new area for current company
+      operationId: createCompanyArea
+      requestBody:
+        description: Expecting area attributes
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Area name
+              required:
+                - name
+      responses:
+        '200':
+          description: Created model or validated model with errors
+    delete:
+      tags:
+        - Company. Areas
+      summary: Delete company areas
+      operationId: deleteCompanyAreas
+      description: Deleted list of company areas
+      parameters:
+        - name: ids
+          in: query
+          description: array of ids to delete
+          schema:
+            type: array
+            items:
+              type: integer
+      responses:
+        '200':
+          description: Deletion result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Whether operation successfull or not.
+                  error:
+                    type: string
+                    description: >-
+                      Error description with HTML tags. Can be absent if
+                      operation successfull.
+                required:
+                  - success
+              example:
+                sucess: true
+        '404':
+          description: When some area not found
+  '/company/areas/{id}':
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Area id
+        schema:
+          type: integer
+    get:
+      tags:
+        - Company. Areas
+      summary: View company area
+      operationId: getCompanyArea
+      responses:
+        '200':
+          description: Area model
+        '404':
+          description: When area not found
+    put:
+      tags:
+        - Company. Areas
+      summary: Update company area
+      operationId: updateCompanyArea
+      requestBody:
+        description: Expecting area attributes
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  description: Area id
+                name:
+                  type: string
+                  description: Area name
+              required:
+                - id
+                - name
+      responses:
+        '200':
+          description: Updated model or validated model with errors
+        '404':
+          description: When area not found
+    delete:
+      tags:
+        - Company. Areas
+      summary: Delete company area
+      operationId: deleteCompanyArea
+      description: Deleted single company area
+      responses:
+        '200':
+          description: Deletion result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Whether operation successfull or not.
+                  error:
+                    type: string
+                    description: Error description with HTML tags.
+                required:
+                  - success
+              example:
+                sucess: true
+        '404':
+          description: When area not found
+  /company/areas/merge:
+    post:
+      tags:
+        - Company. Areas
+      summary: Areas merge
+      operationId: mergeCompanyAreas
+      requestBody:
+        description: Expecting list of area ids to merge.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                areas:
+                  type: array
+                  description: Array of area ids
+                  items:
+                    type: integer
+              required:
+                - areas
+              example:
+                - 5
+                - 8
+      responses:
+        '200':
+          description: Successful merge
+        '422':
+          description: Merge failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Error description with HTML tags.
+                required:
+                  - message
+              example:
+                message: You need to select at least two location to merge
+  /company/hotels:
+    get:
+      tags:
+        - Company. Hotels
+      summary: Paginated list of current company locations
+      operationId: getCompanyHotels
+      parameters:
+        - name: search
+          in: query
+          description: text to search in location name
+          schema:
+            type: string
+        - name: area
+          in: query
+          description: text to search in location ares name
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: page to get
+          schema:
+            type: integer
+        - name: sort
+          in: query
+          description: result sorting
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Paginated locations list
+          headers:
+            X-Pagination-Current-Page:
+              schema:
+                type: integer
+              description: Current page number. Starts from 1.
+            X-Pagination-Page-Count:
+              schema:
+                type: integer
+              description: Total pages count.
+            X-Pagination-Per-Page:
+              schema:
+                type: integer
+              description: Items count per page.
+            X-Pagination-Total-Count:
+              schema:
+                type: integer
+              description: Total items count.
+        '400':
+          description: When current company not found
+    post:
+      tags:
+        - Company. Hotels
+      summary: Creaete new location for current company
+      operationId: createCompanyHotel
+      requestBody:
+        description: Expecting location attributes
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                lat:
+                  type: string
+                  description: location latitude
+                lon:
+                  type: string
+                  description: Location longtitude
+                area_id:
+                  type: integer
+                  description: Location area id
+                name:
+                  type: string
+                  description: Location name
+                address:
+                  type: string
+                  description: Location address
+              required:
+                - name
+                - area_id
+      responses:
+        '200':
+          description: Created model or validated model with errors
+    delete:
+      tags:
+        - Company. Hotels
+      summary: Delete company locations
+      operationId: deleteCompanyHotels
+      description: Deleted list of company locations
+      parameters:
+        - name: ids
+          in: query
+          description: array of ids to delete
+          schema:
+            type: array
+            items:
+              type: integer
+      responses:
+        '200':
+          description: Deletion result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Whether operation successfull or not.
+                  error:
+                    type: string
+                    description: >-
+                      Error description with HTML tags. Can be absent if
+                      operation successfull.
+                required:
+                  - success
+              example:
+                sucess: true
+        '404':
+          description: When some location not found
+  '/company/hotels/{id}':
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Location id
+        schema:
+          type: integer
+    get:
+      tags:
+        - Company. Hotels
+      summary: View company location
+      operationId: getCompanyHotel
+      responses:
+        '200':
+          description: Locations model
+        '404':
+          description: When location not found
+    put:
+      tags:
+        - Company. Hotels
+      summary: Update company location
+      operationId: updateCompanyHotel
+      requestBody:
+        description: Expecting location attributes
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                lat:
+                  type: string
+                  description: location latitude
+                lon:
+                  type: string
+                  description: Location longtitude
+                area_id:
+                  type: integer
+                  description: Location area id
+                name:
+                  type: string
+                  description: Location name
+                address:
+                  type: string
+                  description: Location address
+              required:
+                - name
+                - area_id
+      responses:
+        '200':
+          description: Updated model or validated model with errors
+        '404':
+          description: When location not found
+    delete:
+      tags:
+        - Company. Hotels
+      summary: Delete company location
+      operationId: deleteCompanyHotel
+      description: Deleted single company location
+      responses:
+        '200':
+          description: Deletion result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Whether operation successfull or not.
+                  error:
+                    type: string
+                    description: Error description with HTML tags.
+                required:
+                  - success
+              example:
+                sucess: true
+        '404':
+          description: When location not found
+  /company/hotels/merge:
+    post:
+      tags:
+        - Company. Hotels
+      summary: Hotels merge
+      operationId: mergeCompanyHotels
+      requestBody:
+        description: Expecting list of location ids to merge.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                buildings:
+                  type: array
+                  description: Array of location ids
+                  items:
+                    type: integer
+              required:
+                - buildings
+              example:
+                - 7
+                - 34
+      responses:
+        '200':
+          description: Successful merge
+        '422':
+          description: Merge failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Error description with HTML tags.
+                required:
+                  - message
+              example:
+                message: You need to select at least two location to merge
+  /bookings/statuses:
+    post:
+      tags:
+        - Top Menu. Bookings
+      summary: Booking statuses changing
+      operationId: setBookingStatuses
+      requestBody:
+        description: Expecting list of new statuses and booking ids to change
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bookingIds:
+                  type: array
+                  description: List of booking ids to change
+                  items:
+                    type: string
+                bookingStatus:
+                  type: integer
+                  description: Booking status to set
+                transferStatus:
+                  type: integer
+                  description: Transfer status to set
+                checkinStatus:
+                  type: integer
+                  description: Checkin status to set
+              required:
+                - bookingIds
+              example:
+                bookingIds:
+                  - 3K8W0Z2C2R
+                bookingStatus: 1
+                transferStatus: 0
+                checkinStatus: 0
+      responses:
+        '200':
+          description: >-
+            Operation result. Empty if no errors and processing more than one
+            booking.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: >-
+                      Error text with booking ids. Added if unable to change
+                      booking status from Canceled.
+                  resultText:
+                    type: string
+                    description: >-
+                      Operation result description. Added if booking status
+                      changed to Confirmed and only one booking was sent to
+                      process.
+              example: {}
+  /calendar/set-booking-position:
+    post:
+      tags:
+        - Top Menu. Bookings
+      summary: Booking position changing
+      operationId: setBookingPosition
+      requestBody:
+        description: Expecting booking id and new position to set
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bookingId:
+                  type: string
+                  description: Booking id
+                position:
+                  type: integer
+                  description: New position
+              required:
+                - bookingId
+                - position
+              example:
+                bookingId: 3K8W0Z2C2R
+                position: 3
+      responses:
+        '200':
+          description: Operation result.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Whether operation successful or not.
+              example:
+                success: true
+        '404':
+          description: If booking not found
+  '/sessions/{scheduleId}':
+    delete:
+      tags:
+        - Top Menu. Bookings. Sessions
+      summary: Booking session canceling
+      operationId: cancelBookingSession
+      parameters:
+        - name: scheduleId
+          in: path
+          description: Schedule ID
+          required: true
+          schema:
+            type: integer
+        - name: date
+          in: query
+          description: 'Date in format "Y-m-d", like "2019-03-27"'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returned if no errors happen
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          description: If schedule not found
+  '/sessions/{scheduleId}/restore':
+    get:
+      tags:
+        - Top Menu. Bookings. Sessions
+      summary: Booking session restoring
+      operationId: restoreBookingSession
+      parameters:
+        - name: scheduleId
+          in: path
+          description: Schedule ID
+          required: true
+          schema:
+            type: integer
+        - name: date
+          in: query
+          description: 'Date in format "Y-m-d", like "2019-03-27"'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returned if no errors happen
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          description: If schedule not found
+  /calendar/sessions/blocks:
+    get:
+      tags:
+        - Top Menu. Bookings. Session Blocks
+      summary: Booking session blocks list
+      operationId: getBookingSessionBlocksList
+      parameters:
+        - name: scheduleId
+          in: query
+          description: Schedule ID
+          required: true
+          schema:
+            type: integer
+        - name: date
+          in: query
+          description: 'Date in format "Y-m-d", like "2019-03-27"'
+          required: true
+          schema:
+            type: string
+        - name: optionId
+          in: query
+          description: Schedule Price group ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Return blocks list and modal form configs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  blocks:
+                    type: array
+                    items:
+                      type: object
+                      description: Session block model
+                  canModify:
+                    type: boolean
+                    description: Whether editing available or not
+        '404':
+          description: If target session not found
+  /company/tour-category:
+    post:
+      tags:
+        - Tour Setup. Step General
+      summary: Add new category
+      description: Created category must be added at the end of categories list on frontend
+      operationId: addTourCategory
+      requestBody:
+        description: Expecting object with `tour_id` and `names` fields
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tour_id:
+                  type: string
+                  description: 'Current tour id, empty for new tour'
+                names:
+                  type: array
+                  description: List of names to add
+                  items:
+                    type: object
+                    properties:
+                      is_default:
+                        type: integer
+                        description: '1 for last added/edited name, 0 for other names'
+                        enum:
+                          - 0
+                          - 1
+                      language_id:
+                        type: string
+                        description: Language ID
+                      name:
+                        type: string
+                        description: Name for selected language
+              required:
+                - tour_id
+                - names
+              example:
+                tour_id: 3D3B4S5C7V
+                names:
+                  - is_default: 1
+                    language_id: ru-RU
+                    name: Category
+      responses:
+        '200':
+          description: Created tour category
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    description: New category id
+                  name:
+                    type: string
+                    description: >-
+                      Name on site language (if exists, on default language in
+                      other way)
+                  names:
+                    type: array
+                    description: 'List of added names, same as in request, with ids'
+                    items:
+                      type: object
+                      properties:
+                        is_default:
+                          type: integer
+                          description: '1 for last added/edited name, 0 for other names'
+                          enum:
+                            - 0
+                            - 1
+                        language_id:
+                          type: string
+                          description: Language ID
+                        name:
+                          type: string
+                          description: Name for selected language
+              example:
+                id: 15
+                name: Category
+                names:
+                  - id: 35
+                    is_default: 1
+                    language_id: ru-RU
+                    name: Category
+  '/tour-setup/{tourId}>/tour-option':
+    post:
+      tags:
+        - Tour Setup. Step Tour Options
+      summary: Validate tour option names
+      description: Validate tour option names
+      operationId: tourPriceGroupValidate
+      parameters:
+        - name: tourId
+          in: path
+          description: Tour ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Expecting object current tour model and option names to validate
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tour:
+                  type: object
+                  description: Current tour model
+                validateOption:
+                  type: object
+                  properties:
+                    optionIndex:
+                      type: integer
+                      description: >-
+                        Option index to validate from tour model. Must be
+                        skeeped for new option validation.
+                    names:
+                      type: array
+                      description: List of added names
+                      items:
+                        type: object
+                        properties:
+                          is_default:
+                            type: integer
+                            description: '1 for last added/edited name, 0 for other names'
+                            enum:
+                              - 0
+                              - 1
+                          language_id:
+                            type: string
+                            description: Language ID
+                          name:
+                            type: string
+                            description: Option name for selected language
+              required:
+                - tour
+                - validateOption
+              example:
+                tour: {}
+                validateOption:
+                  optionIndex: 1
+                  names:
+                    - is_default: 1
+                      language_id: en-US
+                      name: Tour option
+      responses:
+        '200':
+          description: Validated tour option with errors
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  options:
+                    type: array
+                    description: >-
+                      Updated list of tour options for replacing in current tour
+                      model
+                    items:
+                      $ref: '#/components/schemas/TourOptionModel'
+                  validatedOption:
+                    $ref: '#/components/schemas/TourOptionModelWithErrors'
+  '/tour-setup/{tourId}>/clone-option-names':
+    post:
+      tags:
+        - Tour Setup. Step Tour Options
+      summary: Cloning tour option names
+      description: Cloning tour option names
+      operationId: tourPriceGroupCloning
+      parameters:
+        - name: tourId
+          in: path
+          description: Tour ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Expecting object current tour model and option index to clone
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tour:
+                  type: object
+                  description: Current tour model
+                optionIndexToClone:
+                  type: integer
+                  format: int64
+              required:
+                - tour
+                - optionIndexToClone
+              example:
+                tour: {}
+                optionIndexToClone: 1
+      responses:
+        '200':
+          description: New list of tour options with cloned tour option
+          content:
+            application/json:
+              schema:
+                type: array
+                description: >-
+                  Updated list of tour options for replacing in current tour
+                  model
+                items:
+                  $ref: '#/components/schemas/TourOptionModel'
+              example:
+                - id: 8
+                  publish_on: 1
+                  canDelete: true
+                  clonePriceGroupId: null
+                  sort_order: 0
+                  setAsDefault: false
+                  names:
+                    - id: 7
+                      is_default: 1
+                      language_id: en-US
+                      name: First option
+                - id: 9
+                  publish_on: 1
+                  canDelete: true
+                  clonePriceGroupId: null
+                  sort_order: 1
+                  setAsDefault: false
+                  names:
+                    - id: 67
+                      is_default: 1
+                      language_id: en-US
+                      name: Second option
+                - id: null
+                  publish_on: 1
+                  canDelete: true
+                  clonePriceGroupId: null
+                  sort_order: 0
+                  setAsDefault: false
+                  names:
+                    - id: null
+                      is_default: 1
+                      language_id: en-US
+                      name: Copy of Second option
+  /company/customer-groups:
+    get:
+      tags:
+        - Tour Setup. Step People & Price
+      summary: List of customer groups
+      operationId: getCustomerGroupsList
+      responses:
+        '200':
+          description: List of customer groups
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    is_occupies:
+                      type: integer
+                    is_system:
+                      type: integer
+                    age_from:
+                      type: integer
+                    age_to:
+                      type: integer
+                    canDelete:
+                      type: boolean
+                    name:
+                      type: string
+    post:
+      tags:
+        - Tour Setup. Step People & Price
+      summary: Create customer group
+      operationId: createCustomerGroup
+      responses:
+        '200':
+          description: New customer group
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    is_occupies:
+                      type: integer
+                    is_system:
+                      type: integer
+                    age_from:
+                      type: integer
+                    age_to:
+                      type: integer
+                    canDelete:
+                      type: boolean
+                    name:
+                      type: string
+        '422':
+          description: Model with validation errors
+  '/company/customer-groups/{id}':
+    parameters:
+      - name: id
+        in: path
+        description: Customer group ID
+        required: true
+        schema:
+          type: integer
+    get:
+      tags:
+        - Tour Setup. Step People & Price
+      summary: Single customer group
+      operationId: getCustomerGroup
+      responses:
+        '200':
+          description: Customer group model
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    is_occupies:
+                      type: integer
+                    is_system:
+                      type: integer
+                    age_from:
+                      type: integer
+                    age_to:
+                      type: integer
+                    canDelete:
+                      type: boolean
+                    name:
+                      type: string
+        '404':
+          description: Customer group not found
+    put:
+      tags:
+        - Tour Setup. Step People & Price
+      summary: Update customer group
+      operationId: updateCustomerGroup
+      responses:
+        '200':
+          description: Updated customer group
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    is_occupies:
+                      type: integer
+                    is_system:
+                      type: integer
+                    age_from:
+                      type: integer
+                    age_to:
+                      type: integer
+                    canDelete:
+                      type: boolean
+                    name:
+                      type: string
+        '404':
+          description: Customer group not found
+        '422':
+          description: Model with validation errors
+    delete:
+      tags:
+        - Tour Setup. Step People & Price
+      summary: Delete customer group
+      operationId: deleteCustomerGroup
+      responses:
+        '204':
+          description: Successful customer group deletion
+        '404':
+          description: Customer group not found
+  /company/toursetup/fees-taxes:
+    get:
+      tags:
+        - Tour Setup. Step People & Price
+      summary: Current company fees and taxes list
+      operationId: getFeesTaxesList
+      responses:
+        '200':
+          description: Fees and taxes list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fees:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                        included:
+                          type: boolean
+                        applyTo:
+                          type: string
+                        amountByCategories:
+                          type: array
+                          description: For fee per person
+                          items:
+                            type: object
+                            properties:
+                              category_id:
+                                type: integer
+                              name:
+                                type: string
+                              amount:
+                                type: string
+                              type:
+                                type: integer
+                        amountByGroup:
+                          type: string
+                          description: For fee per group
+                        amountByGroupType:
+                          type: integer
+                          description: For fee per group
+                  taxes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                        amount:
+                          type: string
+                        amountType:
+                          type: integer
+                        included:
+                          type: boolean
+                        compound:
+                          type: boolean
+  '/tour-setup/{id}>/tour-option-dynamic-price':
+    parameters:
+      - name: id
+        in: path
+        description: Tour ID
+        required: true
+        schema:
+          type: string
+    post:
+      tags:
+        - Tour Setup. Step People & Price
+      summary: Dynamic price validation
+      operationId: validateDynamicPrice
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tour:
+                  type: object
+                  description: Current tour model
+                validatePrice:
+                  type: object
+                  properties:
+                    optionIndex:
+                      type: integer
+                      description: Key must be specified for already added price.
+                    price:
+                      $ref: '#/components/schemas/DynamicPrice'
+      responses:
+        '200':
+          description: Fees and taxes list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DynamicPrice'
+        '422':
+          description: Price model with validation errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DynamicPrice'
+  '/tour-setup/{id}>/tour-option-participants':
+    parameters:
+      - name: id
+        in: path
+        description: Tour ID
+        required: true
+        schema:
+          type: string
+    post:
+      tags:
+        - Tour Setup. Step People & Price
+      summary: Participants validation
+      operationId: validateParticipants
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                min:
+                  type: integer
+                priceGroupId:
+                  type: integer
+                pricesList:
+                  type: array
+                  description: List of participant categories to validate
+                  items:
+                    type: object
+                specialPrices:
+                  type: array
+                  description: List of dynamic prices from tour model
+                  items:
+                    type: object
+      responses:
+        '200':
+          description: Validation result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  min:
+                    type: integer
+                  pricesList:
+                    type: array
+                    description: Validated list of participant categories
+                    items:
+                      type: object
+                  specialPrices:
+                    type: array
+                    description: List of dynamic prices for replacing in tour model
+                    items:
+                      type: object
+        '422':
+          description: Participant models with validation errors
+  /tour-setup/cancellation/select-list:
+    get:
+      tags:
+        - Tour Setup. Step Payment & Deposit
+      summary: List of company cancellations
+      operationId: getCompanyCancellations
+      responses:
+        '200':
+          description: List of cancellations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    key:
+                      type: string
+                    cancellation:
+                      $ref: '#/components/schemas/Cancellation'
+  /tour-setup/cancellation:
+    get:
+      tags:
+        - Tour Setup. Step Payment & Deposit
+      summary: Get new cancellation model
+      operationId: getNewCustomCancellation
+      responses:
+        '200':
+          description: New custom cancellation model
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cancellation'
+    post:
+      tags:
+        - Tour Setup. Step Payment & Deposit
+      summary: Create customer group
+      operationId: createCustomCancellation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Cancellation'
+      responses:
+        '200':
+          description: New custom cancellation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cancellation'
+        '422':
+          description: Model with validation errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cancellation'
+  '/tour-setup/cancellation/{id}':
+    parameters:
+      - name: id
+        in: path
+        description: Custom cancellation ID
+        required: true
+        schema:
+          type: integer
+    get:
+      tags:
+        - Tour Setup. Step Payment & Deposit
+      summary: Get single custom cancellation
+      operationId: getCustomCancellation
+      responses:
+        '200':
+          description: Customer group model
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cancellation'
+        '404':
+          description: Custom cancellation not found
+    put:
+      tags:
+        - Tour Setup. Step Payment & Deposit
+      summary: Update custom cancellation
+      operationId: updateCustomCancellation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Cancellation'
+      responses:
+        '200':
+          description: Updated custom cancellation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cancellation'
+        '404':
+          description: Custom cancellation not found
+        '422':
+          description: Model with validation errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cancellation'
+    delete:
+      tags:
+        - Tour Setup. Step Payment & Deposit
+      summary: Delete custom cancellation
+      operationId: deleteCustomCancellation
+      responses:
+        '204':
+          description: Successful custom cancellation deletion
+        '404':
+          description: Custom cancellation not found
+  /reports/views:
+    get:
+      tags:
+        - Reports - Views
+      summary: List of existing views for active company
+      description: ''
+      operationId: listViews
+      responses:
+        '200':
+          description: List of views.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportViewList'
+        '404':
+          description: Active company not found
+    post:
+      tags:
+        - Reports - Views
+      summary: Create new View
+      operationId: createView
+      requestBody:
+        description: Expecting object with `name` field
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+              required:
+                - name
+              example:
+                name: Some custom view
+      responses:
+        '200':
+          description: Created View model
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportView'
+        '404':
+          description: Active company not found
+  '/reports/views/{viewId}':
+    get:
+      tags:
+        - Reports - Views
+      summary: Get view by ID
+      operationId: getView
+      parameters:
+        - name: viewId
+          in: path
+          description: View ID
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: View model
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportView'
+        '404':
+          description: Active company or View not found
+    put:
+      tags:
+        - Reports - Views
+      summary: Update view by ID
+      operationId: updateView
+      parameters:
+        - name: viewId
+          in: path
+          description: View ID
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Expecting object with `name` field
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+              required:
+                - name
+              example:
+                name: Some custom view
+      responses:
+        '200':
+          description: Updated View model
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportView'
+        '404':
+          description: View not found
+    delete:
+      tags:
+        - Reports - Views
+      summary: Delete view by ID
+      operationId: deleteView
+      parameters:
+        - name: viewId
+          in: path
+          description: View ID
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: View model
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportView'
+        '404':
+          description: View not found
+  /bookings:
+    get:
+      tags:
+        - Booking
+      summary: Initial model for new booking
+      operationId: getNewBooking
+      responses:
+        '200':
+          description: Prepared model
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingForm'
+    post:
+      tags:
+        - Booking
+      summary: Reload booking model with new data
+      operationId: reloadBooking
+      requestBody:
+        description: Expecting booking form model
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookingForm'
+      responses:
+        '200':
+          description: Reloaded booking form model
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingForm'
+    put:
+      tags:
+        - Booking
+      summary: Create booking
+      operationId: createBooking
+      requestBody:
+        description: Expecting booking form model
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookingForm'
+      responses:
+        '200':
+          description: Created booking form model
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingForm'
+        '422':
+          description: Model with validation errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingForm'
+  /bookings/check-required-fields:
+    post:
+      tags:
+        - Booking
+      summary: >-
+        Check if all required fields are filled for new booking. Use
+        `api/marketplace/bookings/check-required-fields` for marketplace
+        requests, `api/wl/bookings/check-required-fields` - for wl.
+      operationId: checkRequiredFieldsNewBooking
+      requestBody:
+        description: Expecting booking form model
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookingForm'
+      responses:
+        '200':
+          description: Check result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  allRequiredFilled:
+                    type: boolean
+  '/bookings/{id}':
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Booking id
+        schema:
+          type: string
+    get:
+      tags:
+        - Booking
+      summary: Get model for existing booking
+      operationId: getBooking
+      responses:
+        '200':
+          description: Booking form model
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingForm'
+        '404':
+          description: When booking not found
+    put:
+      tags:
+        - Booking
+      summary: Update existed booking
+      operationId: updateBooking
+      requestBody:
+        description: Expecting booking form model
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookingForm'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingForm'
+          description: Updated booking form model
+        '404':
+          description: When booking not found
+        '422':
+          description: Model with validation errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingForm'
+  '/bookings/{id}/check-required-fields':
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Booking id
+        schema:
+          type: string
+    post:
+      tags:
+        - Booking
+      summary: >-
+        Check if all required fields are filled for existing booking. Use
+        `api/marketplace/bookings/{id}/check-required-fields` for marketplace
+        requests, `api/wl/bookings/{id}/check-required-fields` - for wl,
+        `api/booking-view/bookings/{id}/check-required-fields` - for booking
+        view
+      operationId: checkRequiredFieldsExistingBooking
+      requestBody:
+        description: Expecting booking form model
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookingForm'
+      responses:
+        '200':
+          description: Check result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  allRequiredFilled:
+                    type: boolean
+  '/api/bookings/{id}/settings/tours':
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Booking id
+        schema:
+          type: string
+    get:
+      tags:
+        - Booking. Settings
+      summary: >-
+        Return tours list available for booking. Use
+        `/api/bookings/settings/tours` for new booking
+      operationId: getBookingToursList
+      responses:
+        '200':
+          description: List of tours indexed by their ids
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BookingTour'
+  '/api/bookings/{id}/settings/tour-options':
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Booking id
+        schema:
+          type: string
+      - name: tourId
+        in: query
+        required: true
+        description: Tour id
+        schema:
+          type: string
+    get:
+      tags:
+        - Booking. Settings
+      summary: >-
+        Return tour options list available for booking. Use
+        `/api/bookings/settings/tour-options` for new booking
+      operationId: getBookingTourOptionsList
+      responses:
+        '200':
+          description: List of tour options indexed by their ids
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BookingTourOption'
+        '422':
+          description: Validation errors list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingHeaderValidator'
+  '/api/bookings/{id}/settings/dates':
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Booking id
+        schema:
+          type: string
+      - name: tourId
+        in: query
+        required: true
+        description: Tour id
+        schema:
+          type: string
+      - name: tourOptionId
+        in: query
+        required: true
+        description: Tour option id
+        schema:
+          type: integer
+      - name: from
+        in: query
+        description: From date
+        schema:
+          type: string
+      - name: to
+        in: query
+        description: To date
+        schema:
+          type: string
+    get:
+      tags:
+        - Booking. Settings
+      summary: >-
+        Return dates list for booking with availability status. Use
+        `/api/bookings/settings/dates` for new booking
+      operationId: getBookingDatesList
+      responses:
+        '200':
+          description: List of dates with availability status
+          content:
+            application/json:
+              schema:
+                type: array
+                description: Array of statuses with dates as keys
+                items:
+                  type: string
+              example:
+                '2019-10-05': day_have-bookings
+                '2019-10-06': day_available
+        '422':
+          description: Validation errors list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingHeaderValidator'
+  '/api/bookings/{id}/settings/sessions':
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Booking id
+        schema:
+          type: string
+      - name: tourId
+        in: query
+        required: true
+        description: Tour id
+        schema:
+          type: string
+      - name: tourOptionId
+        in: query
+        required: true
+        description: Tour option id
+        schema:
+          type: integer
+      - name: date
+        in: query
+        required: true
+        description: Date
+        schema:
+          type: string
+    get:
+      tags:
+        - Booking. Settings
+      summary: >-
+        Return sessions list for booking. Use `/api/bookings/settings/sessions`
+        for new booking
+      operationId: getBookingSessionsList
+      responses:
+        '200':
+          description: List of sessions available for booking
+          content:
+            application/json:
+              schema:
+                type: array
+                description: Array of sessions
+                items:
+                  $ref: '#/components/schemas/BookingTimeSession'
+        '422':
+          description: Validation errors list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingHeaderValidator'
+  '/api/bookings/{id}/settings/booking':
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Booking id
+        schema:
+          type: string
+      - name: tourId
+        in: query
+        required: true
+        description: Tour id
+        schema:
+          type: string
+      - name: tourOptionId
+        in: query
+        required: true
+        description: Tour option id
+        schema:
+          type: integer
+      - name: date
+        in: query
+        required: true
+        description: Date
+        schema:
+          type: string
+      - name: scheduleId
+        in: query
+        required: true
+        description: Schedule id
+        schema:
+          type: integer
+    get:
+      tags:
+        - Booking. Settings
+      summary: >-
+        Return booking with loaded default values. Use
+        `/api/bookings/settings/booking` for new booking
+      operationId: getBookingInitialSettings
+      responses:
+        '200':
+          description: List of sessions available for booking
+          content:
+            application/json:
+              schema:
+                type: array
+                description: Array of sessions
+                items:
+                  $ref: '#/components/schemas/Booking'
+        '422':
+          description: Validation errors list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingHeaderValidator'
+  '/api/bookings/{id}/settings/agent-fields-config':
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Booking id
+        schema:
+          type: string
+      - name: tourId
+        in: query
+        required: true
+        description: Tour id
+        schema:
+          type: string
+      - name: tourOptionId
+        in: query
+        required: true
+        description: Tour option id
+        schema:
+          type: integer
+      - name: agentId
+        in: query
+        description: Date
+        schema:
+          type: integer
+    get:
+      tags:
+        - Booking. Settings
+      summary: >-
+        Return booking fields config for specified agent. Use
+        `/api/bookings/settings/agent-fields-config` for new booking
+      operationId: getBookingAgentFieldsConfig
+      responses:
+        '200':
+          description: Booking fields config
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingFieldsConfig'
+        '422':
+          description: Validation errors list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingHeaderValidator'
+  '/api/bookings/{id}/settings/pickup-place-config':
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Booking id
+        schema:
+          type: string
+      - name: tourId
+        in: query
+        required: true
+        description: Tour id
+        schema:
+          type: string
+      - name: tourOptionId
+        in: query
+        required: true
+        description: Tour option id
+        schema:
+          type: integer
+      - name: date
+        in: query
+        required: true
+        description: Date
+        schema:
+          type: string
+      - name: scheduleId
+        in: query
+        required: true
+        description: Schedule id
+        schema:
+          type: integer
+      - name: building_id
+        in: query
+        description: Pick-up location id. Required if buildingName empty
+        schema:
+          type: integer
+      - name: buildingName
+        in: query
+        description: Pick-up location name. Required if building_id empty
+        schema:
+          type: string
+      - name: area_id
+        in: query
+        description: Pick-up area id. Required if area available and areaName empty
+        schema:
+          type: integer
+      - name: areaName
+        in: query
+        description: Pick-up location name. Required if area available and area_id empty
+        schema:
+          type: string
+    get:
+      tags:
+        - Booking. Settings
+      summary: >-
+        Return booking pick-up place time and prices. Use
+        `/api/bookings/settings/pickup-place-config` for new booking
+      operationId: getBookingPickupPlaceConfig
+      responses:
+        '200':
+          description: Booking pick-up place config
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingPickupPlaceConfig'
+        '422':
+          description: Validation errors list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingPickupPlaceValidator'
+  /calendar/sessions/comments:
+    post:
+      parameters:
+        - name: date
+          in: query
+          required: true
+          description: Session date
+          schema:
+            type: string
+        - name: schedule_id
+          in: query
+          required: true
+          description: Session schedule id
+          schema:
+            type: integer
+      tags:
+        - Calendar. Session messages
+      summary: Send message for session
+      operationId: addSessionMessage
+      requestBody:
+        description: Expecting message models
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                messages:
+                  type: array
+                  items:
+                    type: object
+                    description: Required one of properties. message or image
+                    properties:
+                      message:
+                        type: string
+                        description: Text message
+                      image:
+                        type: integer
+                        description: Image attachment id
+              example:
+                messages:
+                  - message: some text
+                  - image: 384
+      responses:
+        '200':
+          description: Created message models
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  description: Properties message or image with imageUrl will be presented
+                  properties:
+                    id:
+                      type: integer
+                    session_id:
+                      type: integer
+                    created_by:
+                      type: integer
+                      description: Company user id
+                    createdBy:
+                      type: object
+                      description: Creator object
+                      properties:
+                        avatarUrl:
+                          type: string
+                        fullName:
+                          type: string
+                        initials:
+                          type: string
+                        roleColor:
+                          type: string
+                    created_at:
+                      type: integer
+                      description: Creation timestamp
+                    tour_schedule_price_group_id:
+                      type: integer
+                    message:
+                      type: string
+                      description: Text message
+                    image:
+                      type: integer
+                      description: Image attachment id
+                    imageUrl:
+                      type: string
+                example:
+                  - id: 354
+                    session_id: 654
+                    created_by: 8
+                    createdBy:
+                      avatarUrl: ''
+                      fullName: Me
+                      initials: ES
+                      roleColor: '#cccccc'
+                    tour_schedule_price_group_id: null
+                    message: some text
+                  - id: 354
+                    session_id: 654
+                    created_by: 8
+                    createdBy:
+                      avatarUrl: ''
+                      fullName: Me
+                      initials: ES
+                      roleColor: '#cccccc'
+                    tour_schedule_price_group_id: null
+                    image: 384
+                    imageUrl: >-
+                      /attachments/2019-07-03/959618fe579d48d76cb565dffa930866.jpg
+        '422':
+          description: Message models with errors
+  /calendar/sessions/comments/upload:
+    post:
+      tags:
+        - Calendar. Session messages
+      summary: Upload image for session message
+      operationId: uploadSessionMessageImage
+      requestBody:
+        description: Expecting file data
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  description: Uploading file binary
+      responses:
+        '200':
+          description: Successfull uploading
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  attachment_id:
+                    type: integer
+                    description: To use as image field in message
+                  name:
+                    type: string
+                    description: Uploaded file name
+                  url:
+                    type: string
+                    description: Attachment url. To use as imageUrl field in message
+        '422':
+          description: Failed to upload file
+          content:
+            application/json:
+              schema:
+                type: string
+                description: Error text
+  /employees/:
+    post:
+      tags:
+        - Employees
+      summary: Get paginated users list with filtering
+      operationId: getEmployees
+      requestBody:
+        description: Expecting file to upload
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                page:
+                  type: integer
+                itemsCount:
+                  type: integer
+                  description: 'required users count in page, 20 by default'
+                statuses:
+                  type: array
+                  items:
+                    type: integer
+                roles:
+                  type: array
+                  items:
+                    type: integer
+                search:
+                  type: string
+              example:
+                page: 1
+                statuses:
+                  - 0
+                  - 1
+                roles:
+                  - 34
+                  - 65
+      responses:
+        '200':
+          description: Users list
+          headers:
+            X-Pagination-Current-Page:
+              schema:
+                type: integer
+              description: Current page number. Starts from 0.
+            X-Pagination-Page-Count:
+              schema:
+                type: integer
+              description: Total pages count.
+            X-Pagination-Per-Page:
+              schema:
+                type: integer
+              description: Items count per page.
+            X-Pagination-Total-Count:
+              schema:
+                type: integer
+              description: Total items count.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  description: User model
+  /employees/filter:
+    get:
+      tags:
+        - Employees
+      summary: Get employees filter data
+      operationId: getEmployeesFilterValues
+      responses:
+        '200':
+          description: Filter values
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statuses:
+                    type: array
+                    items:
+                      type: string
+                  roles:
+                    type: array
+                    items:
+                      type: string
+  '/employees/{userId}/documents':
+    parameters:
+      - name: userId
+        in: path
+        description: Company user id
+        required: true
+        schema:
+          type: integer
+    get:
+      tags:
+        - Employees. Documents
+      summary: List of current user documents
+      operationId: getCompanyUserDocuments
+      responses:
+        '200':
+          description: Documents list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CompanyUserDocument'
+        '400':
+          description: When current company or company user not found
+    post:
+      tags:
+        - Employees. Documents
+      summary: Uploading new document
+      operationId: uploadCompanyUserDocument
+      requestBody:
+        description: Expecting file to upload
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  description: File to upload
+              required:
+                - file
+      responses:
+        '200':
+          description: Attachment model for uploaded file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompanyUserDocument'
+        '422':
+          description: Uploading error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errror:
+                    type: string
+                    description: Error text
+  '/employees/{userId}/documents/{id}':
+    parameters:
+      - name: userId
+        in: path
+        description: Company user id
+        required: true
+        schema:
+          type: integer
+      - name: id
+        in: path
+        description: Document id
+        required: true
+        schema:
+          type: integer
+    get:
+      tags:
+        - Employees. Documents
+      summary: File content to view
+      operationId: getCompanyUserDocumentToView
+      responses:
+        '200':
+          description: File content
+        '404':
+          description: When document or company user not found
+    put:
+      tags:
+        - Employees. Documents
+      summary: Update company user document name
+      operationId: updateCompanyUserDocument
+      requestBody:
+        description: Expecting name attribute
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Document name
+              required:
+                - name
+      responses:
+        '200':
+          description: Updated model
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompanyUserDocument'
+        '404':
+          description: When document or company user not found
+        '422':
+          description: Validated model with errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompanyUserDocument'
+    delete:
+      tags:
+        - Employees. Documents
+      summary: Delete company user document
+      operationId: deleteCompanyUserDocument
+      responses:
+        '200':
+          description: Deletion successfull
+        '404':
+          description: When document or company user not found
+        '422':
+          description: Deletion failed
+  '/employees/{userId}/documents/{id}/download':
+    parameters:
+      - name: userId
+        in: path
+        description: Company user id
+        required: true
+        schema:
+          type: integer
+      - name: id
+        in: path
+        description: Document id
+        required: true
+        schema:
+          type: integer
+    get:
+      tags:
+        - Employees. Documents
+      summary: File content to download
+      operationId: getCompanyUserDocumentToDownload
+      responses:
+        '200':
+          description: File content
+        '404':
+          description: When document or company user not found
+  /company/invoices:
+    get:
+      tags:
+        - Invoices
+      summary: Paginated list of company invoices
+      operationId: getInvoicesList
+      parameters:
+        - name: page
+          in: query
+          description: page to get
+          schema:
+            type: integer
+        - name: itemsCount
+          in: query
+          description: items count on a page
+          schema:
+            type: integer
+        - name: search
+          in: query
+          description: string to search among invoice number and invoice agent name
+          schema:
+            type: string
+        - name: date_from
+          in: query
+          description: date to search from
+          schema:
+            type: string
+        - name: date_to
+          in: query
+          description: date to search to
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: Invoice status to filter
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Invoice models
+          headers:
+            X-Pagination-Current-Page:
+              schema:
+                type: integer
+              description: Current page number. Starts from 0.
+            X-Pagination-Page-Count:
+              schema:
+                type: integer
+              description: Total pages count.
+            X-Pagination-Per-Page:
+              schema:
+                type: integer
+              description: Items count per page.
+            X-Pagination-Total-Count:
+              schema:
+                type: integer
+              description: Total items count.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoiceFromList'
+        '404':
+          description: When active company not found
+  /company/invoices/totals:
+    get:
+      tags:
+        - Invoices
+      summary: Total values for filtered invoices
+      operationId: getInvoicesTotals
+      parameters:
+        - name: search
+          in: query
+          description: string to search among invoice number and invoice agent name
+          schema:
+            type: string
+        - name: date_from
+          in: query
+          description: date to search from
+          schema:
+            type: string
+        - name: date_to
+          in: query
+          description: date to search to
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: Invoice status to filter
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Total values
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sent:
+                    type: number
+                  paid:
+                    type: number
+                  overdue:
+                    type: number
+                  allCount:
+                    type: number
+        '404':
+          description: When active company not found
+  /company/invoices/status-counts:
+    get:
+      tags:
+        - Invoices
+      summary: Total counts by statuses for filtered invoices
+      operationId: getInvoicesStatusCounts
+      parameters:
+        - name: search
+          in: query
+          description: string to search among invoice number and invoice agent name
+          schema:
+            type: string
+        - name: date_from
+          in: query
+          description: date to search from
+          schema:
+            type: string
+        - name: date_to
+          in: query
+          description: date to search to
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Total values
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    status:
+                      type: integer
+                    name:
+                      type: string
+                    count:
+                      type: integer
+        '404':
+          description: When active company not found
+  '/company/invoices/{id}':
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Invoice id
+        schema:
+          type: integer
+    get:
+      tags:
+        - Invoice
+      summary: Get model for existing invoice
+      operationId: getInvoice
+      responses:
+        '200':
+          description: Invoice model
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+        '404':
+          description: When invoice not found
+    put:
+      tags:
+        - Invoice
+      summary: Update existed invoice
+      operationId: updateInvoice
+      requestBody:
+        description: Expecting invoice form model
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Invoice'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+          description: Updated invoice form model
+        '404':
+          description: When invoice not found
+        '422':
+          description: Model with validation errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+  '/company/invoices/{id}/send':
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Invoice id
+        schema:
+          type: integer
+      - name: type
+        in: query
+        required: true
+        description: 'Sending type (0 - send, 1 - resend)'
+        schema:
+          type: integer
+    get:
+      tags:
+        - Invoice
+      summary: Invoice email send form initial data
+      operationId: sendInvoiceFormInitial
+      responses:
+        '200':
+          description: Invoice email send form initial data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoiceEmailSendForm'
+        '404':
+          description: When invoice not found
+    post:
+      tags:
+        - Invoice
+      summary: Validating invoice email send form
+      operationId: sendInvoiceFormValidation
+      requestBody:
+        description: Expecting invoice email send form
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvoiceEmailSendForm'
+      responses:
+        '200':
+          description: Validatin successed. Validated invoice email send form
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoiceEmailSendForm'
+        '404':
+          description: When invoice not found
+        '422':
+          description: Validatin failed. Validated invoice email send form with errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoiceEmailSendFormError'
+    put:
+      tags:
+        - Invoice
+      summary: Sending invoice
+      operationId: sendInvoice
+      requestBody:
+        description: Expecting invoice email send form or nothing
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvoiceEmailSendForm'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: boolean
+          description: Whether operation successful or not
+        '404':
+          description: When invoice not found
+  '/company/invoices/{id}/cancel':
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Invoice id
+        schema:
+          type: integer
+    put:
+      tags:
+        - Invoice
+      summary: Setting invoice void
+      operationId: setVoidInvoice
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: boolean
+          description: Whether operation successful or not
+        '404':
+          description: When invoice not found
+  '/company/invoices/{invoiceId}/payments':
+    parameters:
+      - name: invoiceId
+        in: path
+        required: true
+        description: Invoice id
+        schema:
+          type: integer
+    get:
+      tags:
+        - Invoice. Payments
+      summary: Invoice payments list
+      operationId: getInvoicePayments
+      responses:
+        '200':
+          description: Invoice payments list
+          content:
+            application/json:
+              schema:
+                type: array
+                description: Items contain `InvoicePayment` or `BookingPayment` models
+                items:
+                  type: object
+        '404':
+          description: When invoice not found
+    post:
+      tags:
+        - Invoice. Payments
+      summary: Create invoice payment
+      operationId: createInvoicePayment
+      responses:
+        '200':
+          description: Created invoice payment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoicePaymentEditModel'
+        '404':
+          description: When invoice not found
+        '422':
+          description: Model with validation errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoicePaymentEditModel'
+  '/company/invoices/{invoiceId}/payments/{id}':
+    parameters:
+      - name: invoiceId
+        in: path
+        required: true
+        description: Invoice id
+        schema:
+          type: integer
+      - name: id
+        in: path
+        required: true
+        description: Invoice payment id
+        schema:
+          type: integer
+    get:
+      tags:
+        - Invoice. Payments
+      summary: View invoice payment
+      operationId: getInvoicePayment
+      responses:
+        '200':
+          description: Invoice payment model
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoicePaymentEditModel'
+        '404':
+          description: When invoice or invoice payment not found
+    put:
+      tags:
+        - Invoice. Payments
+      summary: Update invoice payment
+      operationId: updateInvoicePayment
+      responses:
+        '200':
+          description: Updated invoice payment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoicePaymentEditModel'
+        '404':
+          description: When invoice or invoice payment not found
+        '422':
+          description: Model with validation errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoicePaymentEditModel'
+  '/company/invoices/{invoiceId}/payments/{id}/split':
+    parameters:
+      - name: invoiceId
+        in: path
+        required: true
+        description: Invoice id
+        schema:
+          type: integer
+      - name: id
+        in: path
+        required: true
+        description: Invoice payment id
+        schema:
+          type: integer
+    post:
+      tags:
+        - Invoice. Payments
+      summary: Splitting invoice payment
+      operationId: splitInvoicePayment
+      requestBody:
+        description: Expecting payment attributes
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                childs:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      invoice_id:
+                        type: integer
+                      amount:
+                        type: string
+              required:
+                - childs
+      responses:
+        '200':
+          description: Splitted invoice payment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoicePaymentEditModel'
+        '404':
+          description: When invoice or invoice payment not found
+        '422':
+          description: Model with validation errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoicePaymentEditModel'
+  '/company/invoices/{invoiceId}/payments/{id}/set-status':
+    parameters:
+      - name: invoiceId
+        in: path
+        required: true
+        description: Invoice id
+        schema:
+          type: integer
+      - name: id
+        in: path
+        required: true
+        description: Invoice payment id
+        schema:
+          type: integer
+    post:
+      tags:
+        - Invoice. Payments
+      summary: Set invoice payment status
+      operationId: setInvoicePaymentStatus
+      requestBody:
+        description: Expecting payment status
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                  description: '0 - not verified, 1 - verified'
+              required:
+                - status
+      responses:
+        '200':
+          description: Set status succeed
+        '404':
+          description: When invoice or invoice payment not found
+        '422':
+          description: Set status failed
+  '/customers/{customerId}/bookings':
+    parameters:
+      - name: customerId
+        in: path
+        required: true
+        description: Customer id
+        schema:
+          type: integer
+    get:
+      tags:
+        - Customer
+      summary: Customer bookings as paginated list
+      operationId: getCustomerBookings
+      responses:
+        '200':
+          description: Paginated bookings list
+          headers:
+            X-Pagination-Current-Page:
+              schema:
+                type: integer
+              description: Current page number.
+            X-Pagination-Page-Count:
+              schema:
+                type: integer
+              description: Total pages count.
+            X-Pagination-Per-Page:
+              schema:
+                type: integer
+              description: Items count per page.
+            X-Pagination-Total-Count:
+              schema:
+                type: integer
+              description: Total items count.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CustomerBooking'
+        '400':
+          description: When current company or customer not found
+  '/customers/{customerId}/bookings/{id}':
+    parameters:
+      - name: customerId
+        in: path
+        required: true
+        description: Customer id
+        schema:
+          type: integer
+      - name: id
+        in: path
+        required: true
+        description: Booking id
+        schema:
+          type: string
+    get:
+      tags:
+        - Customer
+      summary: Single customer booking
+      operationId: getCustomerBooking
+      responses:
+        '200':
+          description: Customer booking
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerBooking'
+        '400':
+          description: When current company or customer not found
+  /cart/checkout:
+    post:
+      tags:
+        - Checkout
+      summary: Cart checkout
+      operationId: cartCheckout
+      requestBody:
+        description: Expecting list of booking ids to checkout
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bookingIds:
+                  type: array
+                  items:
+                    type: string
+                amount:
+                  type: string
+              required:
+                - bookingIds
+                - amount
+      responses:
+        '200':
+          description: Successful checkout
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  path:
+                    type: string
+        '422':
+          description: On checkout errors
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  path:
+                    type: string
+                  $errors:
+                    type: object
+                    description: >-
+                      Key-value array. Key - error field, value - error
+                      description.
+  /cart/apply-prices:
+    post:
+      tags:
+        - Checkout
+      summary: Change booking prices from cart
+      operationId: updateCartBookingPrices
+      requestBody:
+        description: Expecting list of booking custom prices
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  bookingId:
+                    type: string
+                  prices:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        priceId:
+                          type: string
+                          description: Get from booking cart data
+                        price:
+                          type: string
+              required:
+                - bookingIds
+                - amount
+      responses:
+        '200':
+          description: Successful update
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Recalculated cart
+  /company/my-agents:
+    get:
+      parameters:
+        - name: page
+          in: query
+          description: Page number. From 0.
+          schema:
+            type: integer
+        - name: name
+          in: query
+          description: Company name to search
+          schema:
+            type: string
+        - name: firstLetter
+          in: query
+          description: Company first letter to search
+          schema:
+            type: string
+        - name: destination
+          in: query
+          description: Company destination to search
+          schema:
+            type: string
+      tags:
+        - My Companies
+      summary: Paginated list of My Agents
+      operationId: getMyAgentsList
+      responses:
+        '200':
+          description: Companies list
+          headers:
+            X-Pagination-Current-Page:
+              schema:
+                type: integer
+              description: Current page number.
+            X-Pagination-Page-Count:
+              schema:
+                type: integer
+              description: Total pages count.
+            X-Pagination-Per-Page:
+              schema:
+                type: integer
+              description: Items count per page.
+            X-Pagination-Total-Count:
+              schema:
+                type: integer
+              description: Total items count.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MyCompany'
+        '400':
+          description: When active company not found
+  /company/my-suppliers:
+    get:
+      parameters:
+        - name: page
+          in: query
+          description: Page number. From 0.
+          schema:
+            type: integer
+        - name: name
+          in: query
+          description: Company name to search
+          schema:
+            type: string
+        - name: firstLetter
+          in: query
+          description: Company first letter to search
+          schema:
+            type: string
+        - name: destination
+          in: query
+          description: Company destination to search
+          schema:
+            type: string
+      tags:
+        - My Companies
+      summary: Paginated list of My Suppliers
+      operationId: getMySuppliersList
+      responses:
+        '200':
+          description: Companies list
+          headers:
+            X-Pagination-Current-Page:
+              schema:
+                type: integer
+              description: Current page number.
+            X-Pagination-Page-Count:
+              schema:
+                type: integer
+              description: Total pages count.
+            X-Pagination-Per-Page:
+              schema:
+                type: integer
+              description: Items count per page.
+            X-Pagination-Total-Count:
+              schema:
+                type: integer
+              description: Total items count.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MyCompany'
+        '400':
+          description: When active company not found
+  /calendar/transfer:
+    get:
+      summary: Returns transfer session for date
+      tags:
+        - Transfer View
+      responses:
+        '200':
+          description: Transfer session model
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransferSession'
+        '404':
+          description: Transfer not found
+      parameters:
+        - name: date
+          in: query
+          description: Date of transfer to select. Current date if null
+          schema:
+            type: string
+            nullable: true
+            format: date
+        - name: type
+          in: query
+          description: 'Type of transfer to select. 1 for pickup, 2 for dropoff.'
+          schema:
+            type: integer
+            default: 1
+            enum:
+              - 1
+              - 2
+        - name: category_id
+          in: query
+          description: Tour category filter
+          schema:
+            type: integer
+            nullable: true
+            default: null
+        - name: tour_id
+          in: query
+          description: Tour filter
+          schema:
+            type: integer
+            nullable: true
+            default: null
+  /calendar/transfer/export:
+    get:
+      summary: Export transfer for selected date
+      tags:
+        - Transfer View
+      responses:
+        '200':
+          description: Base64-encoded xlsx file with transfer data
+          content:
+            application/json:
+              schema:
+                type: string
+        '404':
+          description: Transfer not found
+      parameters:
+        - name: date
+          in: query
+          description: date to export
+          required: true
+          schema:
+            $ref: '#/components/schemas/TransferDateParam'
+        - name: type
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/TransferTypeParam'
+  /calendar/transfer/resource-categories:
+    summary: Endpoint for resource categories in transfer
+    post:
+      summary: Add resource category to transfer
+      tags:
+        - Transfer View
+      parameters:
+        - name: date
+          in: query
+          description: Date of transfer
+          required: true
+          schema:
+            type: string
+        - name: type
+          in: query
+          required: true
+          description: 'Type of transfer to create. 1 for pickup, 2 for dropoff.'
+          schema:
+            type: integer
+            default: 1
+            enum:
+              - 1
+              - 2
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransferResourceCategory'
+      responses:
+        '200':
+          description: Model created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransferResourceCategory'
+        '404':
+          description: Transfer or resource category not found
+  '/calendar/transfer/resource-categories/{id}':
+    summary: Endpoint for resource categories in transfer
+    get:
+      summary: Get transfer resource category for transfer
+      tags:
+        - Transfer View
+      parameters:
+        - name: id
+          in: path
+          description: resource category id
+          required: true
+          schema:
+            type: integer
+        - name: date
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/TransferDateParam'
+        - name: type
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/TransferTypeParam'
+      responses:
+        '200':
+          description: Resource category model
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransferResourceCategory'
+        '404':
+          description: Transfer or resource category not found
+    put:
+      summary: Update transfer resource category
+      tags:
+        - Transfer View
+      parameters:
+        - name: id
+          in: path
+          description: resource category id
+          required: true
+          schema:
+            type: integer
+        - name: date
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/TransferDateParam'
+        - name: type
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/TransferTypeParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransferResourceCategory'
+      responses:
+        '200':
+          description: Updated resource category model
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransferResourceCategory'
+        '404':
+          description: Transfer or resource category or resource category not found
+    delete:
+      summary: Delete transfer resource category
+      tags:
+        - Transfer View
+      parameters:
+        - name: id
+          in: path
+          description: resource category id
+          required: true
+          schema:
+            type: integer
+        - name: date
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/TransferDateParam'
+        - name: type
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/TransferTypeParam'
+      responses:
+        '200':
+          description: Resource category deleted
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                type: object
+  /calendar/transfer/resource-categories/link:
+    post:
+      summary: Assign resources in category
+      tags:
+        - Transfer View
+      parameters:
+        - name: id
+          in: query
+          description: resource category id
+          required: true
+          schema:
+            type: integer
+        - name: date
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/TransferDateParam'
+        - name: type
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/TransferTypeParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              description: ids of resource to add
+              items:
+                allOf:
+                  - type: integer
+      responses:
+        '200':
+          description: Resources added
+          content:
+            application/json:
+              schema:
+                type: boolean
+        '400':
+          description: Request body is empty
+        '404':
+          description: Transfer or resource category not found
+  /calendar/transfer/resource-categories/pin:
+    post:
+      summary: Pin resource category
+      tags:
+        - Transfer View
+      parameters:
+        - name: id
+          in: query
+          description: resource category id
+          required: true
+          schema:
+            type: integer
+        - name: date
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/TransferDateParam'
+        - name: type
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/TransferTypeParam'
+      responses:
+        '200':
+          description: Resource category pinned
+          content:
+            application/json:
+              schema:
+                type: boolean
+        '404':
+          description: Transfer or resource category not found
+        '422':
+          description: Validation errors
+          content:
+            application/json:
+              schema:
+                type: object
+  /calendar/transfer/resource-categories/unpin:
+    post:
+      summary: Unpin resource category
+      tags:
+        - Transfer View
+      parameters:
+        - name: id
+          in: query
+          description: resource category id
+          required: true
+          schema:
+            type: integer
+        - name: date
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/TransferDateParam'
+        - name: type
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/TransferTypeParam'
+      responses:
+        '200':
+          description: Resource category unpinned
+          content:
+            application/json:
+              schema:
+                type: boolean
+        '404':
+          description: Transfer or resource category not found
+  /calendar/transfer/resource-categories/export:
+    get:
+      summary: Export resource category for date
+      tags:
+        - Transfer View
+      parameters:
+        - name: id
+          in: query
+          description: resource category id
+          required: true
+          schema:
+            type: integer
+        - name: date
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/TransferDateParam'
+        - name: type
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/TransferTypeParam'
+      responses:
+        '200':
+          description: Base64-encoded xlsx file
+          content:
+            application/json:
+              schema:
+                type: string
+        '404':
+          description: Transfer or resource category not found
+  /calendar/transfer/resources/bookings:
+    post:
+      summary: Assign bookings to transfer resource
+      tags:
+        - Transfer View
+      parameters:
+        - name: resource_id
+          in: query
+          description: resource id
+          required: true
+          schema:
+            type: integer
+        - name: date
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/TransferDateParam'
+        - name: type
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/TransferTypeParam'
+      responses:
+        '200':
+          description: Booking assignment result
+          content:
+            application/json:
+              schema:
+                type: boolean
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                type: object
+  /calendar/transfer/resources/export:
+    get:
+      summary: Export resource for date
+      tags:
+        - Transfer View
+      parameters:
+        - name: id
+          in: query
+          description: resource category id
+          required: true
+          schema:
+            type: integer
+        - name: date
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/TransferDateParam'
+        - name: type
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/TransferTypeParam'
+      responses:
+        '200':
+          description: Base64-encoded xlsx file
+          content:
+            application/json:
+              schema:
+                type: string
+        '404':
+          description: Transfer or resource not found
+  /calendar/transfer/bookings/delete:
+    delete:
+      summary: Remove assigned booking from transfer resource
+      tags:
+        - Transfer View
+      parameters:
+        - name: id
+          in: query
+          description: booking id
+          required: true
+          schema:
+            type: integer
+        - name: date
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/TransferDateParam'
+        - name: type
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/TransferTypeParam'
+      responses:
+        '200':
+          description: Booking removed
+        '404':
+          description: Transfer or booking not found
+components:
+  schemas:
+    TourOptionModel:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        publish_on:
+          type: integer
+          format: int64
+        canDelete:
+          type: boolean
+        clonePriceGroupId:
+          type: integer
+          format: int64
+        sort_order:
+          type: integer
+          format: int64
+        setAsDefault:
+          type: boolean
+        names:
+          type: array
+          items:
+            $ref: '#/components/schemas/MultiLanguageNameModel'
+      example:
+        id: 8
+        publish_on: 1
+        canDelete: true
+        clonePriceGroupId: null
+        sort_order: 0
+        setAsDefault: false
+        names:
+          - id: 7
+            is_default: 1
+            language_id: en-US
+            name: Name in English
+    TourOptionModelWithErrors:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        publish_on:
+          type: integer
+          format: int64
+        canDelete:
+          type: boolean
+        clonePriceGroupId:
+          type: integer
+          format: int64
+        sort_order:
+          type: integer
+          format: int64
+        setAsDefault:
+          type: boolean
+        names:
+          type: array
+          items:
+            $ref: '#/components/schemas/MultiLanguageNameModel'
+        $errors:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+      example:
+        id: null
+        publish_on: 1
+        canDelete: true
+        clonePriceGroupId: null
+        sort_order: 0
+        setAsDefault: false
+        names:
+          - id: null
+            is_default: 1
+            language_id: en-US
+            name: Name in English
+            $errors:
+              - name:
+                  - Some error for field names
+    MultiLanguageNameModel:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        is_default:
+          type: integer
+          description: '1 for last added/edited name, 0 for other names'
+          enum:
+            - 0
+            - 1
+        language_id:
+          type: string
+          description: Language ID
+        name:
+          type: string
+          description: Name for selected language
+        $errors:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+      example:
+        id: '4,'
+        is_default: 1
+        language_id: en-US
+        name: Name in English
+    ReportView:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        is_default:
+          type: integer
+          description: '1 - system view, 0 - custom view'
+          enum:
+            - 0
+            - 1
+      example:
+        id: 8
+        name: Some custom view
+        is_default: 0
+    ReportViewList:
+      type: array
+      items:
+        $ref: '#/components/schemas/ReportView'
+      example:
+        - id: 1
+          name: Bookings
+          is_default: 1
+        - id: 2
+          name: Payments
+          is_default: 1
+        - id: 5
+          name: Custom view
+          is_default: 0
+    BookingForm:
+      type: object
+      properties:
+        booking:
+          $ref: '#/components/schemas/Booking'
+        bookingMessages:
+          type: object
+          description: List of booking messages
+          properties:
+            internal:
+              type: array
+              items:
+                type: object
+            agent:
+              type: array
+              items:
+                type: object
+            customer:
+              type: array
+              items:
+                type: object
+        creationKey:
+          type: string
+          description: Token to prevent booking double saving
+        customerFields:
+          type: object
+          description: List of fixed and custom fields for booking customers
+          properties:
+            custom:
+              type: array
+              items:
+                type: object
+            fixed:
+              type: array
+              items:
+                type: object
+        forbidden:
+          type: boolean
+          description: Whether private bookings for selected session existed or not
+        forbiddenPrivateBookings:
+          type: boolean
+          description: Whether group bookings for selected session existed or not
+        modalType:
+          type: string
+          description: Current modal type to show
+          enum:
+            - modal_1
+            - modal_2
+        options:
+          type: array
+          description: List of available tour options to select in booking
+          items:
+            type: object
+        paymentMethods:
+          description: Payment methods settings for company
+          type: object
+        priceLists:
+          type: array
+          description: List of available suplier's price lists
+          items:
+            type: object
+        sessions:
+          type: array
+          description: List of available sessions for selected date and tour option
+          items:
+            type: object
+        timeline:
+          type: object
+          properties:
+            events:
+              type: array
+              description: List of booking events
+              items:
+                type: object
+            groups:
+              type: array
+              description: List of available event groups
+              items:
+                type: string
+        tours:
+          type: array
+          description: List of available tours to make booking
+          items:
+            type: object
+    Booking:
+      type: object
+      description: Exactly booking model
+      properties:
+        extras:
+          type: array
+          description: List of extras available for booking
+          items:
+            $ref: '#/components/schemas/BookingExtraItem'
+    BookingExtraItem:
+      type: object
+      description: Booking extra object
+      properties:
+        id:
+          type: integer
+          description: Extra link id
+        name:
+          type: string
+        options_on:
+          type: integer
+          enum:
+            - 0
+            - 1
+        quantity_type:
+          type: integer
+          description: >-
+            Extra type (0 - customer can choose quantity, 1 - one per booking, 2
+            - one per person)
+        required:
+          type: integer
+          description: Whether extra required or not (1 - required)
+        extra_id:
+          type: integer
+          description: Extra id
+        options:
+          type: array
+          description: List of extra options. Exists when options_on == 1
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+              extra_option_id:
+                type: integer
+                description: Option id
+              booking_extra_id:
+                type: integer
+                description: Link to booking extra
+              multiple_price_on:
+                type: integer
+              price:
+                type: string
+                description: Option price
+              price_sign:
+                type: integer
+              quantity:
+                type: integer
+              availableQuantity:
+                type: integer
+                description: Available quantity for booking
+              extraOption:
+                type: object
+                properties:
+                  availableQuantity:
+                    type: integer
+                    description: Available quantity for option at all
+              value:
+                type: integer
+                description: Selected count for booking
+        extra_option_id:
+          type: integer
+          description: Exists when options_on == 0. Option id
+        multiple_price_on:
+          type: integer
+          description: Exists when options_on == 0.
+        price:
+          type: string
+          description: Exists when options_on == 0. Option price
+        price_sign:
+          type: integer
+          description: Exists when options_on == 0.
+        quantity:
+          type: integer
+          description: Exists when options_on == 0.
+        availableQuantity:
+          type: integer
+          description: Exists when options_on == 0. Available quantity for booking
+        value:
+          type: integer
+          description: >-
+            Exists when options_on == 0. Selected count for booking or 0/1 when
+            quantity_type != 0
+    DynamicPrice:
+      type: object
+      description: Dynamic price
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        booking_created_date_start:
+          type: string
+          description: Date in PHP format 'Y-m-d'
+          example: '2018-09-21'
+        booking_created_date_end:
+          type: string
+          description: Date in PHP format 'Y-m-d'
+          example: '2018-09-21'
+        booking_for_date_start:
+          type: string
+          description: Date in PHP format 'Y-m-d'
+          example: '2018-09-21'
+        booking_for_date_end:
+          type: string
+          description: Date in PHP format 'Y-m-d'
+          example: '2018-09-21'
+        monday_on:
+          type: integer
+        tuesday_on:
+          type: integer
+        wednesday_on:
+          type: integer
+        thursday_on:
+          type: integer
+        friday_on:
+          type: integer
+        saturday_on:
+          type: integer
+        sunday_on:
+          type: integer
+        booking_created_before_start_days:
+          type: integer
+        booking_created_between_hour_start:
+          type: integer
+        booking_created_between_hour_end:
+          type: integer
+        available_seats_less_than:
+          type: integer
+        people_per_booking_min:
+          type: integer
+        people_per_booking_max:
+          type: integer
+        booking_created_on:
+          type: integer
+        booking_date_on:
+          type: integer
+        booking_has_promotion_on:
+          type: integer
+        booking_weekdays_on:
+          type: integer
+        booking_created_before_start_on:
+          type: integer
+        booking_created_between_on:
+          type: integer
+        available_seats_less_than_on:
+          type: integer
+        total_people_on:
+          type: integer
+        available_seats_more_than_on:
+          type: integer
+        available_seats_more_than:
+          type: integer
+        price:
+          type: string
+        prices:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              price:
+                type: string
+              category_id:
+                type: integer
+              categoryName:
+                type: string
+              categoryAge:
+                type: string
+        hasOnConditions:
+          type: boolean
+        conditionsAsTexts:
+          type: array
+          description: List of texts for price conditions
+          items:
+            type: string
+    Cancellation:
+      type: object
+      properties:
+        isSystem:
+          type: boolean
+        description:
+          type: string
+          description: Exists for system cancellations
+        id:
+          type: integer
+        cancellation:
+          type: string
+        name:
+          type: string
+        cancellation_before:
+          type: integer
+        cancellation_before_type:
+          type: integer
+        cancellations_type:
+          type: integer
+        cancellation_type:
+          type: integer
+        apply_before_type:
+          type: integer
+    CompanyUserDocument:
+      type: object
+      description: Company user document model
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          description: Attachment name (not file name)
+        extension:
+          type: string
+        createdAd:
+          type: string
+          description: Formated creation time
+    InvoiceFromList:
+      type: object
+      description: Booking invoice model
+      properties:
+        id:
+          type: integer
+        number:
+          type: string
+        status:
+          type: integer
+        agentName:
+          type: string
+        total:
+          type: string
+        dueDate:
+          type: string
+        viewUrl:
+          type: string
+        editUrl:
+          type: string
+        paid:
+          type: string
+          description: Exist when status == 2
+        totalDue:
+          type: string
+          description: Exist when status == 2
+        seenMessage:
+          type: string
+          description: Exist if invoice seen
+    Invoice:
+      type: object
+      description: Booking invoice model
+      properties:
+        id:
+          type: integer
+        isSupplier:
+          type: boolean
+          description: Is current company supplier for invoice
+        supplier:
+          type: object
+          properties:
+            logoUrl:
+              type: string
+            companyName:
+              type: string
+            companyIds:
+              type: array
+              description: Company legal identifiers
+              items:
+                type: string
+            address:
+              type: string
+            email:
+              type: string
+            phone:
+              type: string
+        agent:
+          type: object
+          properties:
+            companyName:
+              type: string
+            name:
+              type: string
+              description: Contact name from last invoice
+            address:
+              type: string
+            email:
+              type: string
+            phone:
+              type: string
+        issueDate:
+          type: string
+        dueDate:
+          type: string
+        number:
+          type: string
+        invoiceBookings:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              booking:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  tourName:
+                    type: string
+                  prices:
+                    description: Booking prices
+                    type: object
+              viewDescription:
+                description: Available on invoice view
+                type: string
+              description:
+                description: Available on invoice update
+                type: string
+              defaultDescription:
+                description: Available on invoice update
+                type: string
+        total:
+          type: string
+        paid:
+          type: string
+        balance:
+          type: string
+        notes:
+          type: string
+        legal_terms:
+          type: string
+        editUrl:
+          type: string
+        viewUrl:
+          type: string
+        payments:
+          type: array
+          description: Items contain `InvoicePayment` or `BookingPayment` models
+          items:
+            type: object
+    InvoicePayment:
+      type: object
+      properties:
+        isInvoicePayment:
+          type: boolean
+        isSplitted:
+          type: boolean
+        canSplit:
+          type: boolean
+        date:
+          type: string
+    BookingPayment:
+      type: object
+      properties:
+        booking_id:
+          type: string
+        amount:
+          type: string
+        type:
+          type: integer
+        recipient_type:
+          type: integer
+        reason:
+          type: string
+        date:
+          type: string
+    InvoicePaymentEditModel:
+      type: object
+      properties:
+        id:
+          type: integer
+        invoice_id:
+          type: integer
+        parent_payment_id:
+          type: integer
+        type:
+          type: integer
+          description: '0 - payment, 1 - refund'
+        booking_id:
+          type: string
+        amount:
+          type: string
+          description: invoice current amount
+        full_amount:
+          type: string
+          description: invoice initial amount
+        amountToCategorize:
+          type: string
+          description: Available amount to split
+        reason:
+          type: string
+        status:
+          type: integer
+          description: '0 - not verified, 1 - verified'
+        created_by:
+          type: integer
+        created_at:
+          type: integer
+        childs:
+          type: array
+          description: List of child invoices
+          items:
+            $ref: '#/components/schemas/InvoicePaymentEditModel'
+        childReason:
+          type: string
+        unclosedInvoices:
+          type: array
+          description: List of all unclosed company invoices
+          items:
+            $ref: '#/components/schemas/InvoicePaymentEditModel'
+    CustomerBooking:
+      type: object
+      properties:
+        id:
+          type: string
+        creator:
+          type: object
+          properties:
+            name:
+              type: string
+            avatarUrl:
+              type: string
+            roleColor:
+              type: string
+            initials:
+              type: string
+            viewUrl:
+              type: string
+        agent:
+          type: object
+          properties:
+            name:
+              type: string
+            viewUrl:
+              type: string
+        createdAgo:
+          type: string
+        booking_status:
+          type: integer
+          description: '0 - confirmed, 1 - pending, 2 - cancelled'
+        tourName:
+          type: string
+        tourOptionName:
+          type: string
+        startDate:
+          type: string
+        startTime:
+          type: string
+        mainCustomerName:
+          type: string
+        peoplesList:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                description: People category name
+              count:
+                type: integer
+        totalPrice:
+          type: string
+        totalPaid:
+          type: string
+        totalDue:
+          type: string
+        paymentState:
+          type: string
+          description: '0 - partial, 1 - paid, 2 - overdue'
+        currency:
+          type: object
+          properties:
+            name:
+              type: string
+            code:
+              type: string
+            symbol:
+              type: string
+        voucherCode:
+          type: string
+        buildingName:
+          type: string
+        room_number:
+          type: string
+        extrasList:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              optionName:
+                type: string
+              value:
+                type: string
+    MyCompany:
+      type: object
+      description: My Company model
+      properties:
+        name:
+          type: string
+        type:
+          type: integer
+          description: 'Type (0 - supplier, 1 - agent)'
+        url:
+          type: string
+          description: View url
+        logoUrl:
+          type: string
+        label:
+          type: string
+        categories:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+        city:
+          type: string
+        country:
+          type: string
+        withBTC:
+          type: string
+        withTourHunter:
+          type: string
+          description: Not exists for internal company
+        typeText:
+          type: string
+          description: Company type like "Internal/Online Agent/Suoolier"
+        users:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              isOnline:
+                type: boolean
+              avatarUrl:
+                type: string
+              roleColor:
+                type: string
+              initials:
+                type: string
+              roleName:
+                type: string
+              email:
+                type: string
+              phone:
+                type: string
+        email:
+          type: string
+        phone:
+          type: string
+        balance:
+          type: object
+          properties:
+            value:
+              type: number
+              description: Balance value
+            dueDate:
+              type: string
+            scale:
+              type: number
+        lastBookingDateAgo:
+          type: string
+        activityRate:
+          type: number
+    InvoiceEmailSendForm:
+      type: object
+      properties:
+        fromList:
+          type: array
+          description: List of available emails for from field
+          items:
+            type: string
+        from:
+          type: string
+          description: From email
+        to:
+          type: string
+          description: To email. Not changeble
+        toAdditional:
+          type: array
+          items:
+            type: object
+            properties:
+              email:
+                type: string
+                description: Additioal email
+        subject:
+          type: string
+        message:
+          type: string
+      required:
+        - from
+        - to
+        - subject
+    InvoiceEmailSendFormError:
+      type: object
+      properties:
+        fromList:
+          type: array
+          description: List of available emails for from field
+          items:
+            type: string
+        from:
+          type: string
+          description: From email
+        to:
+          type: string
+          description: To email. Not changeble
+        toAdditional:
+          type: array
+          items:
+            type: object
+            properties:
+              email:
+                type: string
+                description: Additioal email
+              $errors:
+                type: object
+                description: >-
+                  Error field names are object properties, array of errors are
+                  values for properties
+        subject:
+          type: string
+        message:
+          type: string
+        $errors:
+          type: object
+          description: >-
+            Error field names are object properties, array of errors are values
+            for properties
+      required:
+        - from
+        - to
+        - subject
+    BookingColumn:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Column id
+        key:
+          type: string
+          description: Column key
+        manifest_view_id:
+          type: integer
+          description: Linked manifest id
+        name:
+          type: string
+          description: Column name
+        position:
+          type: integer
+          description: Column position
+          minimum: 1
+        visible:
+          type: integer
+          description: Column visibility flag
+          enum:
+            - 0
+            - 1
+    BookingSession:
+      type: object
+      properties:
+        count:
+          type: object
+          properties:
+            text:
+              type: string
+              description: session counts in text format
+        date:
+          type: string
+          description: session date
+        hasVisibleBookings:
+          type: boolean
+          description: 'if session has bookings, that are not cancelled'
+        id:
+          type: integer
+          description: session id
+          default: null
+        isBlocked:
+          type: boolean
+          description: if session has pickup or dropoff resource categories
+        name:
+          type: string
+          description: session name
+        schedule:
+          $ref: '#/components/schemas/Schedule'
+        startTime:
+          type: string
+          description: session start time
+        status:
+          type: integer
+          description: 'session status. 0 - active, 1 - canceled'
+          enum:
+            - 0
+            - 1
+        uniqueId:
+          type: string
+          description: generated unique id for session
+      required:
+        - uniqueId
+    Resource:
+      type: object
+      description: Resource model
+      properties:
+        id:
+          type: integer
+          description: resource id
+        bookings:
+          type: array
+          description: bookings list assigned to this resource
+          default: []
+          items:
+            allOf:
+              - $ref: '#/components/schemas/Booking'
+        count:
+          type: object
+          properties:
+            available:
+              type: integer
+              description: 'available seats for this resource, null if has infinite seats'
+              nullable: true
+            confirmed:
+              type: integer
+              description: booked seats count for this resource
+            total:
+              type: integer
+              description: available seats in this resource
+        isDeleted:
+          type: boolean
+          description: deleted resource flag
+        isEnabled:
+          type: boolean
+          description: if this resource is availble for transfer
+        isUsed:
+          type: boolean
+          description: if this resource is used for transfer
+        isPinned:
+          type: boolean
+          description: if this resource is pinned
+        name:
+          type: string
+          description: resource name
+        nextCode:
+          type: integer
+          description: next available code for resource
+        nickname:
+          type: string
+          description: resource nickname
+        note:
+          type: string
+          nullable: true
+          default: null
+        options_on:
+          type: integer
+          description: shows if options are enabled for this resource
+          enum:
+            - 0
+            - 1
+        resource_category_type:
+          type: integer
+          description: id of resource category type. 0 - custom type. 1 - vehile type
+          enum:
+            - 0
+            - 1
+        resource_type_id:
+          type: integer
+          description: linked resource category id
+        sharedBetweenPrivateOptionsOff:
+          type: boolean
+          description: if is shared between private options
+        shared_between_private_options_on:
+          type: integer
+          description: if can be shared between private options
+          enum:
+            - 0
+            - 1
+        shared_between_tours_on:
+          type: integer
+          description: if can be shared between tours
+          enum:
+            - 0
+            - 1
+        options:
+          type: array
+          items:
+            minItems: 1
+            allOf:
+              - $ref: '#/components/schemas/ResourceOption'
+    ResourceOption:
+      type: object
+      description: Resource option model
+      properties:
+        id:
+          type: integer
+          description: resource option id
+        resource_id:
+          type: integer
+          description: linked resource model id
+        limit_on:
+          type: integer
+          description: if this option has limits enabled
+          default: 0
+          enum:
+            - 0
+            - 1
+        limit_count:
+          type: integer
+          description: 'maximum options, that can be used for this resource'
+          minimum: 1
+          maximum: 65535
+          nullable: true
+          default: null
+        limit_capacity:
+          type: integer
+          description: maximum capacity for one option
+          minimum: 1
+          maximum: 65535
+          nullable: true
+          default: null
+        shared_between_bookings_on:
+          type: integer
+          description: if can be shared between bookings
+          enum:
+            - 0
+            - 1
+        isDeleted:
+          type: boolean
+          description: if this option is deleted
+        isSharedBetweenBookings:
+          type: boolean
+          description: if this option is shared between bookings
+    Schedule:
+      type: object
+      description: Tour schedule model
+      properties:
+        date_end:
+          type: string
+          description: schedule end date
+          nullable: true
+          default: null
+        date_start:
+          type: string
+          description: schedule start date
+        id:
+          type: integer
+          description: schedule id
+        seats:
+          type: integer
+          description: number of seats available
+          nullable: true
+          default: null
+        seatsType:
+          type: integer
+          description: |
+            Schedule seats type Possible types:
+              * `0` - Unlimited seats
+              * `1` - Limited per session
+              * `2` - Limited by resources
+              * `3` - Limited by external API
+          enum:
+            - 0
+            - 1
+            - 2
+            - 3
+        options:
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/ScheduleOption'
+        time:
+          $ref: '#/components/schemas/ScheduleTime'
+        tour:
+          type: object
+    ScheduleOption:
+      type: object
+      description: Schedule option model
+      properties:
+        bookings:
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/Booking'
+        columns:
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/BookingColumn'
+        count:
+          type: object
+          properties:
+            text:
+              type: string
+              description: bookings count in text format
+        hasResources:
+          type: boolean
+          description: if linked session has resources
+        id:
+          type: integer
+          description: schedule option id
+        isPrivate:
+          type: integer
+          description: if this option is used for private bookings
+          enum:
+            - 0
+            - 1
+        name:
+          type: string
+          description: schedule option name
+        seats_type:
+          type: integer
+          description: |
+            seats type set for this option Possible types:
+              * `0` - Unlimited seats
+              * `1` - Limited per session
+              * `2` - Limited by resources
+              * `3` - Limited by external API
+            enum: [0,1,2,3]
+        tour_price_group_id:
+          type: integer
+          description: linked tour option id
+        uniqueId:
+          type: string
+          description: generated schedule option unique id
+    ScheduleTime:
+      type: object
+      properties:
+        duration:
+          type: integer
+          description: Schedule or option duration
+        duration_type:
+          type: integer
+          description: |
+            Duration type. Available types are:
+              * `0` - minutes
+              * `1` - hours
+              * `2` - days
+          enum:
+            - 0
+            - 1
+            - 2
+    TransferSession:
+      type: object
+      description: Transfer session model
+      properties:
+        manifest:
+          type: object
+          description: available data from manifest for transfers
+          properties:
+            sessions:
+              type: array
+              description: available sessions from manifest
+              items:
+                allOf:
+                  - $ref: '#/components/schemas/BookingSession'
+            resourceTypes:
+              type: array
+              description: available resource types from manifest
+              items:
+                allOf:
+                  - $ref: '#/components/schemas/TransferResourceCategory'
+        resourceCategories:
+          type: array
+          description: assigned resource categories
+          items:
+            type: object
+            allOf:
+              - $ref: '#/components/schemas/TransferResourceCategory'
+        sessions:
+          type: array
+          description: available sessions for transfers
+          items:
+            allOf:
+              - $ref: '#/components/schemas/BookingSession'
+        settings:
+          type: array
+          items:
+            type: object
+            allOf:
+              - $ref: '#/components/schemas/BookingColumn'
+    TransferResourceCategory:
+      type: object
+      description: Resource category object in transfer session
+      properties:
+        id:
+          type: integer
+          description: resource category id
+        isPinned:
+          type: boolean
+          description: shows if this category is pinned
+        name:
+          type: string
+          description: category name
+        resources:
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/Resource'
+    TransferDateParam:
+      type: string
+      description: Date of transfer
+      format: date
+    TransferTypeParam:
+      type: integer
+      description: 'Type of transfer to select. 1 for pickup, 2 for dropoff.'
+      enum:
+        - 1
+        - 2
+    AvailableCompanyData:
+      type: object
+      description: Company data
+      properties:
+        id:
+          type: integer
+          description: Company id
+        name:
+          type: string
+          description: Company name
+    BookingHeaderValidator:
+      type: object
+      description: 'Validation model for booking tour, tour option, date, time'
+      properties:
+        $errors:
+          type: array
+          description: Array of errors with field names as keys
+          items:
+            type: array
+            items:
+              type: string
+      example:
+        $errors:
+          tourId:
+            - Tour Id is invalid.
+    BookingPickupPlaceValidator:
+      type: object
+      description: >-
+        Validation model for booking tour, tour option, date, time, building,
+        area
+      properties:
+        $errors:
+          type: array
+          description: Array of errors with field names as keys
+          items:
+            type: array
+            items:
+              type: string
+      example:
+        $errors:
+          tourId:
+            - Tour Id is invalid.
+    BookingTour:
+      type: object
+      description: Booking tour data
+      properties:
+        id:
+          type: integer
+          description: Tour id
+        name:
+          type: string
+          description: Tour name
+        company_id:
+          type: integer
+          description: Tour owner company id
+        category:
+          type: object
+          description: Tour category
+          properties:
+            id:
+              type: integer
+              description: Category id
+            name:
+              type: string
+              description: Category name
+    BookingTourOption:
+      type: object
+      description: Booking tour option data
+      properties:
+        id:
+          type: integer
+          description: Tour option id
+        name:
+          type: string
+          description: Tour option name
+    BookingTimeSession:
+      type: object
+      description: Booking session data
+      properties:
+        id:
+          type: integer
+          description: Schedule id
+        startTime:
+          type: string
+          description: Time string to show in dropdown
+        headerStartTime:
+          type: string
+          description: Time string to show in booking header
+    BookingFieldsConfig:
+      type: object
+      description: Booking fields config
+      properties:
+        mainCustomer:
+          type: object
+          description: Main customer fields
+          properties:
+            fixed:
+              type: array
+              items:
+                type: object
+                properties:
+                  askMainCustomer:
+                    $ref: '#/components/schemas/BookingFieldVisibilityType'
+                  askParticipant:
+                    $ref: '#/components/schemas/BookingFieldVisibilityType'
+                  name:
+                    description: Field Label
+                    type: string
+                  field:
+                    type: object
+                    properties:
+                      tid:
+                        description: Field code
+                        type: string
+                      value:
+                        description: Field value
+                        type: string
+            custom:
+              type: array
+              items:
+                type: object
+                properties:
+                  askMainCustomer:
+                    $ref: '#/components/schemas/BookingFieldVisibilityType'
+                  askParticipant:
+                    $ref: '#/components/schemas/BookingFieldVisibilityType'
+                  name:
+                    description: Field Label
+                    type: string
+                  field:
+                    type: object
+                    properties:
+                      type:
+                        $ref: '#/components/schemas/BookingFieldType'
+                      value:
+                        description: Field value
+                        type: string
+        customerFields:
+          type: object
+          description: Participant fields
+          properties:
+            fixed:
+              type: array
+              items:
+                type: object
+                properties:
+                  askMainCustomer:
+                    $ref: '#/components/schemas/BookingFieldVisibilityType'
+                  askParticipant:
+                    $ref: '#/components/schemas/BookingFieldVisibilityType'
+                  name:
+                    description: Field Label
+                    type: string
+                  field:
+                    type: object
+                    properties:
+                      tid:
+                        description: Field code
+                        type: string
+                      value:
+                        description: Field value
+                        type: string
+            custom:
+              type: array
+              items:
+                type: object
+                properties:
+                  askMainCustomer:
+                    $ref: '#/components/schemas/BookingFieldVisibilityType'
+                  askParticipant:
+                    $ref: '#/components/schemas/BookingFieldVisibilityType'
+                  name:
+                    description: Field Label
+                    type: string
+                  field:
+                    type: object
+                    properties:
+                      type:
+                        $ref: '#/components/schemas/BookingFieldType'
+                      value:
+                        description: Field value
+                        type: string
+        pickup:
+          type: object
+          description: Pick-up settings
+          properties:
+            askBuilding:
+              $ref: '#/components/schemas/BookingFieldVisibilityType'
+            askArea:
+              $ref: '#/components/schemas/BookingFieldVisibilityType'
+            askRoomNumber:
+              $ref: '#/components/schemas/BookingFieldVisibilityType'
+        otherDetails:
+          type: object
+          description: Other details fields
+          properties:
+            fixed:
+              type: array
+              items:
+                type: object
+                properties:
+                  required:
+                    type: boolean
+                  tourOption:
+                    type: object
+                    properties:
+                      fixedBookingOption:
+                        type: object
+                        properties:
+                          type:
+                            $ref: '#/components/schemas/BookingOtherFieldType'
+                          code:
+                            type: string
+                            description: field code
+                          name:
+                            type: string
+                            description: field label
+                          description:
+                            type: string
+                            description: field description
+                  value:
+                    description: Field value
+                    type: string
+            custom:
+              type: array
+              items:
+                type: object
+                properties:
+                  customer_required:
+                    type: integer
+                    description: '0 - optional, 1 - required'
+                  tourOption:
+                    type: object
+                    properties:
+                      customBookingOption:
+                        type: object
+                        properties:
+                          type:
+                            $ref: '#/components/schemas/BookingOtherFieldType'
+                          required_on:
+                            type: integer
+                            description: '0 - optional, 1 - required'
+                          name:
+                            type: string
+                            description: field label
+                          multiline_on:
+                            type: integer
+                            description: '0 - one line edit field, 1 - text area field'
+                          checked_on:
+                            type: integer
+                            description: >-
+                              Use with checkbox type. 0 - not checked, 1 -
+                              checked
+                          quantity_max:
+                            type: integer
+                            description: Use with number type. Maximum available value
+                          quantity_min:
+                            type: integer
+                            description: Use with number type. Minimum available value
+                  value:
+                    description: Field value
+                    type: string
+        extras:
+          type: array
+          description: Extras list
+          items:
+            $ref: '#/components/schemas/BookingExtraItem'
+    BookingFieldVisibilityType:
+      type: integer
+      description: |
+        Booking field visibility type. Available types are:
+          * `null` - not used
+          * `0` - optional
+          * `1` - required
+          * `2` - conditional (may fill one of fields with same type)
+          * `3` - hidden (same as optional, but not shown to user by default)
+      enum:
+        - null
+        - 0
+        - 1
+        - 2
+        - 3
+    BookingFieldType:
+      type: string
+      description: Field type
+      enum:
+        - text
+        - select
+        - checkbox
+        - number
+        - date
+        - file
+    BookingOtherFieldType:
+      type: string
+      description: |
+        Booking field type. Available types are:
+          * `0` - text
+          * `1` - select
+          * `2` - checkbox
+          * `3` - number
+          * `4` - date
+      enum:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+    BookingPickupPlaceConfig:
+      type: object
+      description: Booking pick-up place config
+      properties:
+        times:
+          type: object
+          properties:
+            pickup_time:
+              type: integer
+              description: Pick-up start time in seconds
+            pickup_time_end:
+              type: integer
+              description: >-
+                Pick-up end time in seconds. Available if configured by pick-up
+                list
+        prices:
+          type: array
+          description: Empty if prices for place not available
+          items:
+            $ref: '#/components/schemas/BookingPickupPriceItem'
+    BookingPickupPriceItem:
+      type: object
+      description: Booking pick-up price
+      properties:
+        priceId:
+          type: string
+        priceType:
+          type: string
+        price:
+          type: string
+          description: Pick-up price as text
+        label:
+          type: string
