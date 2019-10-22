@@ -1242,6 +1242,90 @@ paths:
                       $ref: '#/components/schemas/TourOptionModel'
                   validatedOption:
                     $ref: '#/components/schemas/TourOptionModelWithErrors'
+  '/tour-setup/{tourId}>/tour-option-deactivation':
+    post:
+      tags:
+        - Tour Setup. Step Tour Options
+      summary: Validate tour option deactivation
+      description: Validate tour option deactivation
+      operationId: tourPriceGroupValidateDeactivation
+      parameters:
+        - name: tourId
+          in: path
+          description: Tour ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Expecting option id to validate
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tourOptionId:
+                  type: integer
+                  description: Option id to validate. Can be empty for new option.
+              required:
+                - tourOptionId
+      responses:
+        '200':
+          description: When deactivation available
+        '422':
+          description: When deactivation unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error text
+  '/tour-setup/{tourId}>/tour-option-deletion':
+    post:
+      tags:
+        - Tour Setup. Step Tour Options
+      summary: Validate tour option deletion
+      description: Validate tour option deletion
+      operationId: tourPriceGroupValidateDeletion
+      parameters:
+        - name: tourId
+          in: path
+          description: Tour ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Expecting current tour model and option index to validate
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tour:
+                  type: object
+                  description: Current tour model
+                optionIndexToDelete:
+                  type: integer
+                  description: Option index to check deletion.
+              required:
+                - tour
+                - optionIndexToDelete
+      responses:
+        '200':
+          description: When deletion available
+        '422':
+          description: When deletion unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error text
   '/tour-setup/{tourId}>/clone-option-names':
     post:
       tags:
