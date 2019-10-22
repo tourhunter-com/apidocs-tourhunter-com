@@ -3590,6 +3590,24 @@ paths:
                   $ref: '#/components/schemas/MyCompany'
         '400':
           description: When active company not found
+  /company/my-agents/restore-from-inactive:
+    put:
+      parameters:
+        - name: id
+          in: query
+          required: true
+          description: Company id to restore
+          schema:
+            type: integer
+      tags:
+        - My Companies
+      summary: Paginated list of My Agents
+      operationId: restoreInMyAgentsList
+      responses:
+        '200':
+          description: When operation successful
+        '422':
+          description: When operation failed
   /calendar/transfer:
     get:
       summary: Returns transfer session for date
