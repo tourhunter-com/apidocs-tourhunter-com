@@ -1,16 +1,30 @@
 openapi: 3.0.0
 info:
   title: TourHunter API Documentation
-  description: TourHunter API Documentation.
+  description: >
+    TourHunter API Documentation.
+
+
+    Make sure you authorized to use API (take a look on Authorization section).
+
+
+    All requests must have header "X-Active-Company-Id" with working company id.
+    List of available companies for authorized user can be requested via
+    "/companies/"
   version: '1.0'
 servers:
   - url: 'https://pro.tourhunter.com/api/'
 tags:
   - name: Authorization
-    description: |
+    description: >
       Endpoints for user authorization.
 
-      Also, available authorization by basic HTTP authentication token. Token expected in 'HTTP_X_API_AUTHORIZATION' header.
+
+      Also, available authorization by basic HTTP authentication token. Token
+      expected in the header "HTTP_X_API_AUTHORIZATION" in the form of "Basic <
+      credentials >", where 'credentials' is the base64 encoding of id and
+      password joined by a single colon ':'. This method must be used for
+      external API request.
   - name: Companies
   - name: Rate Requests
   - name: Company. Areas
@@ -32,6 +46,7 @@ tags:
     description: Common endpoints for charts page
   - name: Booking
   - name: Booking. Settings
+  - name: Booking View
   - name: Calendar. Session messages
   - name: Employees
   - name: Employees. Documents
@@ -2136,8 +2151,9 @@ paths:
       tags:
         - Booking. Settings
       summary: >-
-        Return tours list available for booking. Use
-        `/api/bookings/settings/tours` for new booking
+        First request on booking creation. Return tours list available for
+        booking. Use `/api/bookings/settings/tours` for new booking. Next
+        request - '/bookings/{id}/settings/tour-options'
       operationId: getBookingToursList
       responses:
         '200':
@@ -2162,12 +2178,18 @@ paths:
         description: Tour id
         schema:
           type: string
+      - name: agencyId
+        in: query
+        description: Agency id. Use in case of booking for own tour
+        schema:
+          type: integer
     get:
       tags:
         - Booking. Settings
       summary: >-
         Return tour options list available for booking. Use
-        `/api/bookings/settings/tour-options` for new booking
+        `/api/bookings/settings/tour-options` for new booking. Next request -
+        '/bookings/{id}/settings/dates'
       operationId: getBookingTourOptionsList
       responses:
         '200':
@@ -2214,12 +2236,18 @@ paths:
         description: To date
         schema:
           type: string
+      - name: agencyId
+        in: query
+        description: Agency id. Use in case of booking for own tour
+        schema:
+          type: integer
     get:
       tags:
         - Booking. Settings
       summary: >-
         Return dates list for booking with availability status. Use
-        `/api/bookings/settings/dates` for new booking
+        `/api/bookings/settings/dates` for new booking. Next request -
+        '/bookings/{id}/settings/sessions'
       operationId: getBookingDatesList
       responses:
         '200':
@@ -2266,12 +2294,17 @@ paths:
         description: Date
         schema:
           type: string
+      - name: agencyId
+        in: query
+        description: Agency id. Use in case of booking for own tour
+        schema:
+          type: integer
     get:
       tags:
         - Booking. Settings
       summary: >-
         Return sessions list for booking. Use `/api/bookings/settings/sessions`
-        for new booking
+        for new booking. Next request - '/bookings/{id}/settings/booking'
       operationId: getBookingSessionsList
       responses:
         '200':
@@ -2321,12 +2354,21 @@ paths:
         description: Schedule id
         schema:
           type: integer
+      - name: agencyId
+        in: query
+        description: Agency id. Use in case of booking for own tour
+        schema:
+          type: integer
     get:
       tags:
         - Booking. Settings
       summary: >-
         Return booking with loaded default values. Use
-        `/api/bookings/settings/booking` for new booking
+        `/api/bookings/settings/booking` for new booking.
+        Next request - '/bookings/{id}/settings/agent-fields-config' (if
+        supplier changed agency id),
+         '/bookings/{id}/settings/pickup-place-config' (on pick-up location changing/selecting)
+         or '/bookings/{id}/settings/drop-off-place-config' (on drop-off location changing/selecting)
       operationId: getBookingInitialSettings
       responses:
         '200':
@@ -2364,9 +2406,9 @@ paths:
         description: Tour option id
         schema:
           type: integer
-      - name: agentId
+      - name: agencyId
         in: query
-        description: Date
+        description: Agency id. Use in case of booking for own tour
         schema:
           type: integer
     get:
@@ -2421,6 +2463,11 @@ paths:
         description: Schedule id
         schema:
           type: integer
+      - name: agencyId
+        in: query
+        description: Agency id. Use in case of booking for own tour
+        schema:
+          type: integer
       - name: building_id
         in: query
         description: Pick-up location id. Required if buildingName empty
@@ -2460,7 +2507,184 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BookingPickupPlaceValidator'
+                $ref: '#/components/schemas/BookingPlaceValidator'
+  '/bookings/{id}/settings/drop-off-place-config':
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Booking id
+        schema:
+          type: string
+      - name: tourId
+        in: query
+        required: true
+        description: Tour id
+        schema:
+          type: string
+      - name: tourOptionId
+        in: query
+        required: true
+        description: Tour option id
+        schema:
+          type: integer
+      - name: date
+        in: query
+        required: true
+        description: Date
+        schema:
+          type: string
+      - name: scheduleId
+        in: query
+        required: true
+        description: Schedule id
+        schema:
+          type: integer
+      - name: agencyId
+        in: query
+        description: Agency id. Use in case of booking for own tour
+        schema:
+          type: integer
+      - name: building_id
+        in: query
+        description: Drop-off location id. Required if buildingName empty
+        schema:
+          type: integer
+      - name: buildingName
+        in: query
+        description: Drop-off location name. Required if building_id empty
+        schema:
+          type: string
+    get:
+      tags:
+        - Booking. Settings
+      summary: >-
+        Return booking drop-off place time and prices. Use
+        `/api/bookings/settings/drop-off-place-config` for new booking
+      operationId: getBookingDropOffPlaceConfig
+      responses:
+        '200':
+          description: Booking drop-off place config
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingDropOffPlaceConfig'
+        '422':
+          description: Validation errors list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingPlaceValidator'
+  /calendar/views/booking:
+    parameters:
+      - name: sort_by
+        in: query
+        required: true
+        description: Sort type
+        schema:
+          $ref: '#/components/schemas/BookingViewSortType'
+      - name: viewType
+        in: query
+        description: View type
+        schema:
+          $ref: '#/components/schemas/BookingViewType'
+      - name: page
+        in: query
+        description: Pagination page to request. Starting from 1
+        schema:
+          type: integer
+      - name: tour_id
+        in: query
+        description: Tour id to filter
+        schema:
+          type: string
+      - name: booking_status
+        in: query
+        description: Booking status to filter
+        schema:
+          $ref: '#/components/schemas/BookingViewBookingStatus'
+      - name: payment_status
+        in: query
+        description: Payment status to filter
+        schema:
+          $ref: '#/components/schemas/BookingViewPaymentStatus'
+      - name: agency_id
+        in: query
+        description: Agency id to filter
+        schema:
+          type: integer
+      - name: category_id
+        in: query
+        description: Tour category to filter
+        schema:
+          type: integer
+      - name: filter_by
+        in: query
+        description: >-
+          Filter type for From/To Date filtering. Param "date_from" or "date_to"
+          must be specified
+        schema:
+          $ref: '#/components/schemas/BookingViewFilterBy'
+      - name: date_from
+        in: query
+        description: Filter From Date for bookings. Param "filter_by" must be specified
+        schema:
+          type: string
+      - name: date_to
+        in: query
+        description: Filter To Date for bookings. Param "filter_by" must be specified
+        schema:
+          type: string
+      - name: booked_by
+        in: query
+        description: Filter by bookgin source field
+        schema:
+          type: string
+      - name: search
+        in: query
+        description: 'Filter by bookgin Id, customer name or voucher'
+        schema:
+          type: string
+    get:
+      tags:
+        - Booking View
+      summary: Return paginated list of company bookgins
+      operationId: getBookingViewList
+      responses:
+        '200':
+          description: Bookings paginated list
+          headers:
+            X-Pagination-Current-Page:
+              schema:
+                type: integer
+              description: Current page number. Starts from 1.
+            X-Pagination-Page-Count:
+              schema:
+                type: integer
+              description: Total pages count.
+            X-Pagination-Per-Page:
+              schema:
+                type: integer
+              description: Items count per page.
+            X-Pagination-Total-Count:
+              schema:
+                type: integer
+              description: Total items count.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bookings:
+                    type: array
+                    description: Bookings from requeste page
+                    items:
+                      $ref: '#/components/schemas/BookingViewBooking'
+                  columns:
+                    type: array
+                    description: Booking columns visibility
+                    items:
+                      $ref: '#/components/schemas/BookingViewBookingColumns'
   /calendar/sessions/comments:
     post:
       parameters:
@@ -5324,7 +5548,7 @@ components:
         $errors:
           tourId:
             - Tour Id is invalid.
-    BookingPickupPlaceValidator:
+    BookingPlaceValidator:
       type: object
       description: >-
         Validation model for booking tour, tour option, date, time, building,
@@ -5626,6 +5850,22 @@ components:
           description: Empty if prices for place not available
           items:
             $ref: '#/components/schemas/BookingPickupPriceItem'
+        areaId:
+          type: integer
+        areaName:
+          type: string
+        areaDisabled:
+          type: boolean
+    BookingDropOffPlaceConfig:
+      type: object
+      description: Booking drop-off place config
+      properties:
+        areaId:
+          type: integer
+        areaName:
+          type: string
+        areaDisabled:
+          type: boolean
     BookingPickupPriceItem:
       type: object
       description: Booking pick-up price
@@ -5639,3 +5879,141 @@ components:
           description: Pick-up price as text
         label:
           type: string
+    BookingViewSortType:
+      type: integer
+      description: |
+        Booking view sort type. Available types are:
+          * `0` - by booking creation date
+          * `1` - by booked date
+          * `2` - by last modification date
+      enum:
+        - 0
+        - 1
+        - 2
+    BookingViewType:
+      type: integer
+      description: |
+        Booking view type. Available types are:
+          * `0` - all bookings
+      enum:
+        - 0
+    BookingViewBookingStatus:
+      type: integer
+      description: |
+        Booking status. Available statuses are:
+          * `0` - Confirmed
+          * `1` - Pending
+          * `2` - Canceled
+      enum:
+        - 0
+        - 1
+        - 2
+    BookingViewPaymentStatus:
+      type: integer
+      description: |
+        Booking payment status. Available statuses are:
+          * `0` - Not paid
+          * `1` - Partially paid
+          * `2` - Full paid
+      enum:
+        - 0
+        - 1
+        - 2
+    BookingViewTransferStatus:
+      type: integer
+      description: |
+        Booking transfer status. Available statuses are:
+          * `0` - None
+          * `1` - Picked up
+          * `2` - On the way
+          * `3` - Dropped off
+      enum:
+        - 0
+        - 1
+        - 2
+        - 3
+    BookingViewCheckInStatus:
+      type: integer
+      description: |
+        Booking check-in status. Available statuses are:
+          * `1` - Checked In
+          * `2` - Checked Out
+          * `3` - No show
+      enum:
+        - 1
+        - 2
+        - 3
+    BookingViewFilterBy:
+      type: integer
+      description: |
+        Booking view filter by type. Available types are:
+          * `0` - by booking creation date
+          * `1` - by booked date
+          * `2` - by last modification date. In this case "From/To" dates must be a timestamp values.
+      enum:
+        - 0
+        - 1
+        - 2
+    BookingViewBooking:
+      type: object
+      description: Booking info for Booking view
+      properties:
+        id:
+          type: string
+        voucher:
+          type: string
+        customer:
+          type: string
+          description: Main customer name
+        created:
+          type: string
+          description: Creation date as string
+        source:
+          type: string
+          description: Booking creator name
+        voucher_hash:
+          type: string
+        voucherViewUrl:
+          type: string
+          description: Url for voucher web and print version
+        lastModified:
+          type: integer
+          description: Last modification date in timestamp
+        tour:
+          type: object
+          description: Booking tour
+          properties:
+            name:
+              type: string
+              description: Full tour name
+            supplier:
+              type: object
+              description: Supplier name and nickname
+              properties:
+                name:
+                  type: string
+                nickname:
+                  type: string
+        statuses:
+          type: object
+          description: Booking statuses values
+          properties:
+            booking:
+              $ref: '#/components/schemas/BookingViewBookingStatus'
+            payment:
+              $ref: '#/components/schemas/BookingViewPaymentStatus'
+            transfer:
+              $ref: '#/components/schemas/BookingViewTransferStatus'
+            checkin:
+              $ref: '#/components/schemas/BookingViewCheckInStatus'
+    BookingViewBookingColumns:
+      type: object
+      description: Booking view column description
+      properties:
+        name:
+          type: string
+        key:
+          type: string
+        visible:
+          type: integer
+          description: '1 - visible, 0 - invisible'
