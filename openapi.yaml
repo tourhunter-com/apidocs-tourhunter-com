@@ -154,57 +154,20 @@ paths:
             schema:
               type: object
               properties:
-                step:
-                  type: integer
-                  description: >-
-                    Login form step (1 - Default. Main login form, 2 -
-                    Additional step for seller selection in case of agent login)
-                  enum:
-                    - 1
-                    - 2
                 login:
                   type: string
                   description: User email or agent code
                 password:
                   type: string
                   description: User or agent password
-                uid:
-                  type: integer
-                  description: >-
-                    Remembered user id if session expire while user has some
-                    opened page in browser
                 returnUrl:
                   type: string
                   description: Desired url to redirect after login
-                sellerIdType:
-                  type: string
-                  description: >-
-                    Second step field. Type of selected seller id ("staff" -
-                    real company staff, "virtual" - virtual users)
-                  enum:
-                    - staff
-                    - virtual
-                sellerId:
-                  type: integer
-                  description: Second step field. Selected seller id
-                newSeller:
-                  type: object
-                  description: Second step field. Attributes for new seller creation
-                  properties:
-                    name:
-                      type: string
-                      description: New seller name
-                    phone:
-                      type: string
-                      description: New seller phone
               required:
-                - step
                 - login
               example:
-                step: 1
                 login: admin@localhost.com
                 password: 123
-                uid: 15
       responses:
         '200':
           description: Login form model
@@ -213,12 +176,6 @@ paths:
               schema:
                 type: object
                 properties:
-                  step:
-                    type: integer
-                    description: Login form step
-                    enum:
-                      - 1
-                      - 2
                   login:
                     type: string
                     description: User email or agent code
@@ -231,70 +188,7 @@ paths:
                   redirectUrl:
                     type: string
                     description: Exist when loggedIn = true. Url to redirect after login
-                  sellerIdType:
-                    type: string
-                    description: Second step field. Type of selected seller id
-                    enum:
-                      - staff
-                      - virtual
-                  sellerId:
-                    type: integer
-                    description: Second step field. Selected seller id
-                  newSeller:
-                    type: object
-                    description: Second step field. Attributes for new seller creation
-                    properties:
-                      name:
-                        type: string
-                        description: New seller name
-                      phone:
-                        type: string
-                        description: New seller phone
-                  sellers:
-                    type: array
-                    description: >-
-                      Second step field. First portion of sellers to show in
-                      available sellers list
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: integer
-                          description: Seller id
-                        fullName:
-                          type: string
-                          description: Seller name
-                        type:
-                          type: string
-                          description: >-
-                            Seller type ("staff" - real company staff, "virtual"
-                            - virtual user)
-                          enum:
-                            - staff
-                            - virtual
-                        company_id:
-                          type: integer
-                          description: Staff seller assigned company
-                        agent_id:
-                          type: integer
-                          description: Virtual seller assigned agent
-                  sellersPortionsCount:
-                    type: integer
-                    description: >-
-                      Second step field. All portions count in available sellers
-                      list
-                  isVirtualCompany:
-                    type: boolean
-                    description: >-
-                      Second step field. Whether agent to login is virtual(true)
-                      or real(false) company
-                  newSellerLink:
-                    type: string
-                    description: >-
-                      Second step field. Link to new seller creation. Empty for
-                      virtual company
               example:
-                step: 1
                 login: admin@localhost.com
                 password: 123
                 loggedIn: true
