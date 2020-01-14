@@ -1807,7 +1807,7 @@ paths:
       summary: Create booking
       operationId: createBooking
       requestBody:
-        description: Expecting booking form model. In case of external API use only field 'booking' can be filled with full booking model.
+        description: Expecting booking form model.
         required: true
         content:
           application/json:
