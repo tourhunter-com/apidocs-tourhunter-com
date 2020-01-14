@@ -27,7 +27,7 @@ tags:
       expected in the header "HTTP_X_API_AUTHORIZATION" in the form of "Basic <
       credentials >", where 'credentials' is the base64 encoding of id and
       password joined by a single colon ':'. This method must be used for
-      external API request.
+      external API request. <a href="https://en.wikipedia.org/wiki/Basic_access_authentication" target="_blank" rel="nofollow noreferrer noopener">Read more about "Basic_access_authentication".</a>
   - name: Companies
   - name: Rate Requests
   - name: Company. Areas
@@ -328,7 +328,7 @@ paths:
     post:
       tags:
         - Company. Areas
-      summary: Creaete new area for current company
+      summary: Create new area for current company
       operationId: createCompanyArea
       requestBody:
         description: Expecting area attributes
@@ -546,7 +546,7 @@ paths:
     post:
       tags:
         - Company. Hotels
-      summary: Creaete new location for current company
+      summary: Create new location for current company
       operationId: createCompanyHotel
       requestBody:
         description: Expecting location attributes
