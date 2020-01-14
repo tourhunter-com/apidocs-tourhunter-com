@@ -229,66 +229,6 @@ paths:
                 type: boolean
                 description: Whether operation successful or not
               example: true
-  /sellers:
-    get:
-      tags:
-        - Authorization
-      summary: Get paginated available sellers list for login
-      operationId: getSellersForLogin
-      parameters:
-        - name: agentCode
-          in: query
-          description: agent code from login model
-          required: true
-          schema:
-            type: string
-        - name: page
-          in: query
-          description: page to get
-          schema:
-            type: integer
-        - name: search
-          in: query
-          description: sellers names filter
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Available sellers list
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  sellers:
-                    type: array
-                    description: Portion of sellers to show in available sellers list
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: integer
-                          description: Seller id
-                        fullName:
-                          type: string
-                          description: Seller name
-                        type:
-                          type: string
-                          description: >-
-                            Seller type ("staff" - real company staff, "virtual"
-                            - virtual user)
-                          enum:
-                            - staff
-                            - virtual
-                        company_id:
-                          type: integer
-                          description: Staff seller assigned company
-                        agent_id:
-                          type: integer
-                          description: Virtual seller assigned agent
-                  sellersPortionsCount:
-                    type: integer
-                    description: All portions count in available sellers list
   /companies/:
     get:
       tags:
