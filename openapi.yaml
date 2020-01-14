@@ -11,6 +11,9 @@ info:
     All requests must have header "X-Active-Company-Id" with working company id.
     List of available companies for authorized user can be requested via
     "/companies/"
+
+
+    Make sure you are using "Content-Type: application/json" in POST requests with raw body
   version: '1.0'
 servers:
   - url: 'https://pro.tourhunter.com/api/'
