@@ -25,7 +25,7 @@ tags:
 
       Also, available authorization by basic HTTP authentication token. Token
       expected in the header "HTTP_X_API_AUTHORIZATION" in the form of "Basic <
-      credentials >", where 'credentials' is the base64 encoding of id and
+      credentials >", where 'credentials' is the base64 encoding of login and
       password joined by a single colon ':'. This method must be used for
       external API request. <a href="https://en.wikipedia.org/wiki/Basic_access_authentication" target="_blank" rel="nofollow noreferrer noopener">Read more about "Basic_access_authentication".</a>
   - name: Companies
