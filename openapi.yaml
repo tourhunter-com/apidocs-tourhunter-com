@@ -24,8 +24,8 @@ tags:
 
 
       Also, available authorization by basic HTTP authentication token. Token
-      expected in the header "HTTP_X_API_AUTHORIZATION" in the form of "Basic <
-      credentials >", where 'credentials' is the base64 encoding of id and
+      expected in the header "X-API-AUTHORIZATION" in the form of "Basic <
+      credentials >", where 'credentials' is the base64 encoding of login and
       password joined by a single colon ':'. This method must be used for
       external API request. <a href="https://en.wikipedia.org/wiki/Basic_access_authentication" target="_blank" rel="nofollow noreferrer noopener">Read more about "Basic_access_authentication".</a>
   - name: Companies
@@ -1781,7 +1781,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BookingForm'
+                $ref: '#/components/schemas/BookingFormResponse'
     post:
       tags:
         - Booking
@@ -1793,39 +1793,39 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BookingForm'
+              $ref: '#/components/schemas/BookingFormRequest'
       responses:
         '200':
           description: Reloaded booking form model
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BookingForm'
+                $ref: '#/components/schemas/BookingFormResponse'
     put:
       tags:
         - Booking
       summary: Create booking
       operationId: createBooking
       requestBody:
-        description: Expecting booking form model
+        description: Expecting booking form model.
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BookingForm'
+              $ref: '#/components/schemas/BookingFormRequest'
       responses:
         '200':
           description: Created booking form model
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BookingForm'
+                $ref: '#/components/schemas/BookingFormResponse'
         '422':
           description: Model with validation errors
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BookingForm'
+                $ref: '#/components/schemas/BookingFormResponse'
   /bookings/check-required-fields:
     post:
       tags:
@@ -1841,7 +1841,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BookingForm'
+              $ref: '#/components/schemas/BookingFormRequest'
       responses:
         '200':
           description: Check result
@@ -1871,7 +1871,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BookingForm'
+                $ref: '#/components/schemas/BookingFormResponse'
         '404':
           description: When booking not found
     put:
@@ -1885,13 +1885,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BookingForm'
+              $ref: '#/components/schemas/BookingFormRequest'
       responses:
         '200':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BookingForm'
+                $ref: '#/components/schemas/BookingFormResponse'
           description: Updated booking form model
         '404':
           description: When booking not found
@@ -1900,7 +1900,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BookingForm'
+                $ref: '#/components/schemas/BookingFormResponse'
   '/bookings/{id}/check-required-fields':
     parameters:
       - name: id
@@ -1925,7 +1925,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BookingForm'
+              $ref: '#/components/schemas/BookingFormRequest'
       responses:
         '200':
           description: Check result
@@ -4215,7 +4215,15 @@ components:
         - id: 5
           name: Custom view
           is_default: 0
-    BookingForm:
+    BookingFormRequest:
+      type: object
+      properties:
+        booking:
+          $ref: '#/components/schemas/Booking'
+        creationKey:
+          type: string
+          description: Token to prevent booking double saving
+    BookingFormResponse:
       type: object
       properties:
         booking:
