@@ -23,7 +23,7 @@ tags:
       Endpoints for user authorization.
 
 
-      Also, available authorization by basic HTTP authentication token. Token
+      Also, available authorization by authentication token. Token
       expected in the header "X-API-AUTHORIZATION" in the form of "Basic <
       credentials >", where 'credentials' is the base64 encoding of login and
       password joined by a single colon ':'. This method must be used for
