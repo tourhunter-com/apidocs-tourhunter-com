@@ -2417,9 +2417,12 @@ paths:
           type: integer
       - name: filter_by
         in: query
-        description: >-
+        description: |
           Filter type for From/To Date filtering. Param "date_from" or "date_to"
-          must be specified
+          must be specified. Available types are:
+           * `0` - by booking creation date
+           * `1` - by booked date
+           * `2` - by last modification date. In this case "From/To" dates must be a timestamp values.
         schema:
           $ref: '#/components/schemas/BookingViewFilterBy'
       - name: date_from
