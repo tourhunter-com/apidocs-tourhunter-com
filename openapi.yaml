@@ -5781,7 +5781,7 @@ components:
         voucherViewUrl:
           type: string
           description: Url for voucher web and print version
-        lastModified:
+        updated:
           type: integer
           description: Last modification date in timestamp
         tour:
