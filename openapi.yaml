@@ -130,7 +130,7 @@ paths:
         '422':
           description: >-
             Signup form model with errors. Content the same as for response code
-            200 whith additional field $errors
+            200 with additional field $errors
           content:
             application/json:
               schema:
@@ -199,7 +199,7 @@ paths:
         '422':
           description: >-
             Login form model with errors. Content the same as for response code
-            200 whith additional field $errors
+            200 with additional field $errors
           content:
             application/json:
               schema:
@@ -345,7 +345,9 @@ paths:
                 - name
       responses:
         '200':
-          description: Created model or validated model with errors
+          description: Created model
+        '422':
+          description:  Validated model with errors
     delete:
       tags:
         - Company. Areas
@@ -375,7 +377,7 @@ paths:
                     type: string
                     description: >-
                       Error description with HTML tags. Can be absent if
-                      operation successfull.
+                      operation successful.
                 required:
                   - success
               example:
@@ -424,7 +426,9 @@ paths:
                 - name
       responses:
         '200':
-          description: Updated model or validated model with errors
+          description: Updated model
+        '422':
+          description:  Validated model with errors
         '404':
           description: When area not found
     delete:
@@ -576,7 +580,9 @@ paths:
                 - area_id
       responses:
         '200':
-          description: Created model or validated model with errors
+          description: Created model
+        '422':
+          description: Validated model with errors
     delete:
       tags:
         - Company. Hotels
@@ -664,7 +670,9 @@ paths:
                 - area_id
       responses:
         '200':
-          description: Updated model or validated model with errors
+          description: Updated model
+        '422':
+          description:  Validated model with errors
         '404':
           description: When location not found
     delete:
