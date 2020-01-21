@@ -4,30 +4,61 @@ info:
   description: >
     TourHunter API Documentation.
 
+    Quick Guide
+      
+      1-  Overview of the API
+      
+      2-  Authorization
+      
+      3-  Endpoints
+      
+          a.  Companies
+          b.  Top Menu
+          c.  Setting up a tour
+          d.  Reports, Stats, Charts
+          e.  Bookings
+          f.  Employees
+          g.  Invoices
+          h.  Customer Checkout
+          
+      4-  Schemas/Models
+      
+      
+      Overview
 
-    Make sure you authorized to use API (take a look on Authorization section).
+      The Tourhunter API uses HTTP response codes and has resource-oriented URLs which are based around REST. This API uses HTTP methods like GET, POST, DELETE making it easy for developer to create new applications.
+        Some of our HTTP features include HTTP authentication and verbs which can be used by our respectable HTTP clients. API responses, including errors, are return in JSON.
+        
+      NOTES
+
+        Make sure you authorized to use API (take a look on Authorization section).
+
+        All requests must have header "X-Active-Company-Id" with working company id.
+        List of available companies for authorized user can be requested via
+        "/companies/"
+        
+        Make sure you are using "Content-Type application/json" in POST requests
+        with raw body
 
 
-    All requests must have header "X-Active-Company-Id" with working company id.
-    List of available companies for authorized user can be requested via
-    "/companies/"
-
-
-    Make sure you are using "Content-Type: application/json" in POST requests with raw body
   version: '1.0'
 servers:
   - url: 'https://pro.tourhunter.com/api/'
 tags:
   - name: Authorization
     description: >
-      Endpoints for user authorization.
+    
+      TourHunter API uses BasicAuth method for authorization. This method requires clients to place a request with "username:password" which are Base64 encodings. This API uses HTTPs thereby encrypting messages with HTTP protocol
+      
+      
+      Example request header
+      
+      
+      “Authorization: Basic bG9sOnNlY3VyZQ==”
+      
+      
 
-
-      Also, available authorization by authentication token. Token
-      expected in the header "X-API-AUTHORIZATION" in the form of "Basic <
-      credentials >", where 'credentials' is the base64 encoding of login and
-      password joined by a single colon ':'. This method must be used for
-      external API request. <a href="https://en.wikipedia.org/wiki/Basic_access_authentication" target="_blank" rel="nofollow noreferrer noopener">Read more about "Basic_access_authentication".</a>
+      
   - name: Companies
   - name: Rate Requests
   - name: Company. Areas
@@ -65,10 +96,10 @@ paths:
     post:
       tags:
         - Authorization
-      summary: User signup
+      summary: This endpoint requires User signup
       operationId: signup
       requestBody:
-        description: Expecting user credentials
+        description: Request user to input credentials like email & password.
         required: true
         content:
           application/json:
@@ -100,7 +131,7 @@ paths:
                 - captcha
       responses:
         '200':
-          description: Signup form model
+          description: Displays form for Signup model.
           content:
             application/json:
               schema:
@@ -129,8 +160,7 @@ paths:
                     description: Exist when signedUp = true. Url to redirect after signup
         '422':
           description: >-
-            Signup form model with errors. Content the same as for response code
-            200 with additional field $errors
+            Displays form for sign-up model with errors. Same form for (code:200) will be displayed with indicated errors fields.
           content:
             application/json:
               schema:
@@ -147,10 +177,10 @@ paths:
     post:
       tags:
         - Authorization
-      summary: User login as system user or agent (on WL)
+      summary: This endpoint requires login as system user or Market agent (on WL)
       operationId: login
       requestBody:
-        description: Expecting user credentials
+        description: Request user to input credentials like email & password
         required: true
         content:
           application/json:
@@ -173,7 +203,7 @@ paths:
                 password: 123
       responses:
         '200':
-          description: Login form model
+          description: Displays form for Login model
           content:
             application/json:
               schema:
@@ -198,8 +228,7 @@ paths:
                 redirectUrl: /activity
         '422':
           description: >-
-            Login form model with errors. Content the same as for response code
-            200 with additional field $errors
+            Displays form for login-in model with errors. Same form for (code:200) will be displayed with indicated errors fields.
           content:
             application/json:
               schema:
@@ -218,11 +247,11 @@ paths:
     get:
       tags:
         - Authorization
-      summary: Logout user
+      summary: This endpoint is used for user to Logout.
       operationId: logout
       responses:
         '200':
-          description: Operation result
+          description: Successful activity result will be shown (true/false)
           content:
             application/json:
               schema:
@@ -233,11 +262,11 @@ paths:
     get:
       tags:
         - Companies
-      summary: Get companies list available for user to use
+      summary: This endpoint will display list of  available companies for user.
       operationId: getAvailableCompaniesList
       responses:
         '200':
-          description: Available companies list
+          description: Successfully display available company list.
           content:
             application/json:
               schema:
@@ -248,10 +277,10 @@ paths:
     post:
       tags:
         - Rate Requests
-      summary: Rate request by date/tour status changing
+      summary: This endpoint is used to request by rate of tours with repect to date and tour.(Status is subject to change)
       operationId: setRateRequestByDateStatus
       requestBody:
-        description: Expecting new status value and rate request id
+        description: Request user to input new status value and rate request id
         required: true
         content:
           application/json:
@@ -272,7 +301,7 @@ paths:
                 status: 1
       responses:
         '200':
-          description: Operation result
+          description: Successful activity result will be shown
           content:
             application/json:
               schema:
@@ -290,22 +319,22 @@ paths:
     get:
       tags:
         - Company. Areas
-      summary: Paginated list of current company areas
+      summary: This endpoint is used to display a paginated list of current company areas
       operationId: getCompanyAreas
       parameters:
         - name: page
           in: query
-          description: page to get
+          description: Request user to enter page id for retrieval
           schema:
             type: integer
         - name: sort
           in: query
-          description: result sorting
+          description: Request to sort displayed results
           schema:
             type: string
       responses:
         '200':
-          description: Paginated areas list
+          description: Successfully display paginated areas list
           headers:
             X-Pagination-Current-Page:
               schema:
@@ -324,14 +353,14 @@ paths:
                 type: integer
               description: Total items count.
         '400':
-          description: When current company not found
+          description: Display when requested company not found
     post:
       tags:
         - Company. Areas
-      summary: Create new area for current company
+      summary: This endpoint is used to create new area for current company
       operationId: createCompanyArea
       requestBody:
-        description: Expecting area attributes
+        description: Request user to input area attributes
         required: true
         content:
           application/json:
@@ -345,261 +374,25 @@ paths:
                 - name
       responses:
         '200':
-          description: Created model
-        '422':
-          description:  Validated model with errors
+          description: Successfully created model or validated model 
+          
     delete:
       tags:
         - Company. Areas
-      summary: Delete company areas
+      summary: This endpoint is used to delete company areas
       operationId: deleteCompanyAreas
       description: Deleted list of company areas
       parameters:
         - name: ids
           in: query
-          description: array of ids to delete
+          description: Request user to input array of ids to delete
           schema:
             type: array
             items:
               type: integer
       responses:
         '200':
-          description: Deletion result
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    description: Whether operation successfull or not.
-                  error:
-                    type: string
-                    description: >-
-                      Error description with HTML tags. Can be absent if
-                      operation successful.
-                required:
-                  - success
-              example:
-                sucess: true
-        '404':
-          description: When some area not found
-  '/company/areas/{id}':
-    parameters:
-      - name: id
-        in: path
-        required: true
-        description: Area id
-        schema:
-          type: integer
-    get:
-      tags:
-        - Company. Areas
-      summary: View company area
-      operationId: getCompanyArea
-      responses:
-        '200':
-          description: Area model
-        '404':
-          description: When area not found
-    put:
-      tags:
-        - Company. Areas
-      summary: Update company area
-      operationId: updateCompanyArea
-      requestBody:
-        description: Expecting area attributes
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                id:
-                  type: integer
-                  description: Area id
-                name:
-                  type: string
-                  description: Area name
-              required:
-                - id
-                - name
-      responses:
-        '200':
-          description: Updated model
-        '422':
-          description:  Validated model with errors
-        '404':
-          description: When area not found
-    delete:
-      tags:
-        - Company. Areas
-      summary: Delete company area
-      operationId: deleteCompanyArea
-      description: Deleted single company area
-      responses:
-        '200':
-          description: Deletion result
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    description: Whether operation successfull or not.
-                  error:
-                    type: string
-                    description: Error description with HTML tags.
-                required:
-                  - success
-              example:
-                sucess: true
-        '404':
-          description: When area not found
-  /company/areas/merge:
-    post:
-      tags:
-        - Company. Areas
-      summary: Areas merge
-      operationId: mergeCompanyAreas
-      requestBody:
-        description: Expecting list of area ids to merge.
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                areas:
-                  type: array
-                  description: Array of area ids
-                  items:
-                    type: integer
-              required:
-                - areas
-              example:
-                - 5
-                - 8
-      responses:
-        '200':
-          description: Successful merge
-        '422':
-          description: Merge failed
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Error description with HTML tags.
-                required:
-                  - message
-              example:
-                message: You need to select at least two location to merge
-  /company/hotels:
-    get:
-      tags:
-        - Company. Hotels
-      summary: Paginated list of current company locations
-      operationId: getCompanyHotels
-      parameters:
-        - name: search
-          in: query
-          description: text to search in location name
-          schema:
-            type: string
-        - name: area
-          in: query
-          description: text to search in location ares name
-          schema:
-            type: string
-        - name: page
-          in: query
-          description: page to get
-          schema:
-            type: integer
-        - name: sort
-          in: query
-          description: result sorting
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Paginated locations list
-          headers:
-            X-Pagination-Current-Page:
-              schema:
-                type: integer
-              description: Current page number. Starts from 1.
-            X-Pagination-Page-Count:
-              schema:
-                type: integer
-              description: Total pages count.
-            X-Pagination-Per-Page:
-              schema:
-                type: integer
-              description: Items count per page.
-            X-Pagination-Total-Count:
-              schema:
-                type: integer
-              description: Total items count.
-        '400':
-          description: When current company not found
-    post:
-      tags:
-        - Company. Hotels
-      summary: Create new location for current company
-      operationId: createCompanyHotel
-      requestBody:
-        description: Expecting location attributes
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                lat:
-                  type: string
-                  description: location latitude
-                lon:
-                  type: string
-                  description: Location longtitude
-                area_id:
-                  type: integer
-                  description: Location area id
-                name:
-                  type: string
-                  description: Location name
-                address:
-                  type: string
-                  description: Location address
-              required:
-                - name
-                - area_id
-      responses:
-        '200':
-          description: Created model
-        '422':
-          description: Validated model with errors
-    delete:
-      tags:
-        - Company. Hotels
-      summary: Delete company locations
-      operationId: deleteCompanyHotels
-      description: Deleted list of company locations
-      parameters:
-        - name: ids
-          in: query
-          description: array of ids to delete
-          schema:
-            type: array
-            items:
-              type: integer
-      responses:
-        '200':
-          description: Deletion result
+          description: Successful deletion result
           content:
             application/json:
               schema:
@@ -618,29 +411,261 @@ paths:
               example:
                 sucess: true
         '404':
-          description: When some location not found
+          description: Activity results ; Some areas were not found
+  '/company/areas/{id}':
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Request user to input ID
+        schema:
+          type: integer
+    get:
+      tags:
+        - Company. Areas
+      summary: This endpoint is used to view company area
+      operationId: getCompanyArea
+      responses:
+        '200':
+          description: Successful activity result ; Area model
+        '404':
+          description: Activity results ; When area not found
+    put:
+      tags:
+        - Company. Areas
+      summary: This endpoint is used to Update company area
+      operationId: updateCompanyArea
+      requestBody:
+        description: Request user to input area attributes
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  description: Area id
+                name:
+                  type: string
+                  description: Area name
+              required:
+                - id
+                - name
+      responses:
+        '200':
+          description: Successful activity result ; Updated model or validated model 
+      
+        '404':
+          description: Activity results ; area not found
+    delete:
+      tags:
+        - Company. Areas
+      summary: This endpoint is used to Delete company area
+      operationId: deleteCompanyArea
+      description: Deleted single company area
+      responses:
+        '200':
+          description: Successful activity result ; Deletion result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Whether operation successfull or not.
+                  error:
+                    type: string
+                    description: Error description with HTML tags.
+                required:
+                  - success
+              example:
+                sucess: true
+        '404':
+          description: Activity results ; area not found
+  /company/areas/merge:
+    post:
+      tags:
+        - Company. Areas
+      summary: This endpoint is used to merge Areas.
+      operationId: mergeCompanyAreas
+      requestBody:
+        description: Request user to input list of area ids to merge.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                areas:
+                  type: array
+                  description: Array of area ids
+                  items:
+                    type: integer
+              required:
+                - areas
+              example:
+                - 5
+                - 8
+      responses:
+        '200':
+          description: Successful activity result ;  Merge Successful
+        '422':
+          description: Activity result ; Merge failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Error description with HTML tags.
+                required:
+                  - message
+              example:
+                message: You need to select at least two location to merge
+  /company/hotels:
+    get:
+      tags:
+        - Company. Hotels
+      summary: This endpoint is used to list Paginated current company locations
+      operationId: getCompanyHotels
+      parameters:
+        - name: search
+          in: query
+          description: Request user to input text to search in location name
+          schema:
+            type: string
+        - name: area
+          in: query
+          description: Request user to input text to search in location ares name
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Request user to input page to get
+          schema:
+            type: integer
+        - name: sort
+          in: query
+          description: Request user to input result sorting
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful activity result ; Paginated locations list
+          headers:
+            X-Pagination-Current-Page:
+              schema:
+                type: integer
+              description: Current page number. Starts from 1.
+            X-Pagination-Page-Count:
+              schema:
+                type: integer
+              description: Total pages count.
+            X-Pagination-Per-Page:
+              schema:
+                type: integer
+              description: Items count per page.
+            X-Pagination-Total-Count:
+              schema:
+                type: integer
+              description: Total items count.
+        '400':
+          description: Successful activity result ; current company not found
+    post:
+      tags:
+        - Company. Hotels
+      summary: This endpoint is used to create new location for current company
+      operationId: createCompanyHotel
+      requestBody:
+        description: Expecting location attributes
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                lat:
+                  type: string
+                  description: Location latitude
+                lon:
+                  type: string
+                  description: Location longtitude
+                area_id:
+                  type: integer
+                  description: Location area id
+                name:
+                  type: string
+                  description: Location name
+                address:
+                  type: string
+                  description: Location address
+              required:
+                - name
+                - area_id
+      responses:
+        '200':
+          description: Successful activity result ; Created model or validated model with errors
+    delete:
+      tags:
+        - Company. Hotels
+      summary: This endpoint is used to Delete company locations
+      operationId: deleteCompanyHotels
+      description: Deleted list of company locations
+      parameters:
+        - name: ids
+          in: query
+          description: Request user to input array of ids to delete
+          schema:
+            type: array
+            items:
+              type: integer
+      responses:
+        '200':
+          description: Successful activity result ; Deletion result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Whether operation successfull or not.
+                  error:
+                    type: string
+                    description: >-
+                      Error description with HTML tags. Can be absent if
+                      operation successfull.
+                required:
+                  - success
+              example:
+                sucess: true
+        '404':
+          description: Activity results ; When some location not found
   '/company/hotels/{id}':
     parameters:
       - name: id
         in: path
         required: true
-        description: Location id
+        description: Request user to input Location id
         schema:
           type: integer
     get:
       tags:
         - Company. Hotels
-      summary: View company location
+      summary: This endpoint is used to View company location
       operationId: getCompanyHotel
       responses:
         '200':
-          description: Locations model
+          description: Successful activity result ; Locations model
         '404':
-          description: When location not found
+          description: Activity results ; location not found
     put:
       tags:
         - Company. Hotels
-      summary: Update company location
+      summary: This endpoint is used to Update company location
       operationId: updateCompanyHotel
       requestBody:
         description: Expecting location attributes
@@ -670,20 +695,18 @@ paths:
                 - area_id
       responses:
         '200':
-          description: Updated model
-        '422':
-          description:  Validated model with errors
+          description: Successful activity result ; Updated model or validated model 
         '404':
-          description: When location not found
+          description: Activity results ; location not found
     delete:
       tags:
         - Company. Hotels
-      summary: Delete company location
+      summary: This endpoint is used to Delete company location
       operationId: deleteCompanyHotel
       description: Deleted single company location
       responses:
         '200':
-          description: Deletion result
+          description: Successful activity result ; Deletion Successful
           content:
             application/json:
               schema:
@@ -700,15 +723,15 @@ paths:
               example:
                 sucess: true
         '404':
-          description: When location not found
+          description: Activity results ;  location not found
   /company/hotels/merge:
     post:
       tags:
         - Company. Hotels
-      summary: Hotels merge
+      summary: This endpoint is used to merge Hotels
       operationId: mergeCompanyHotels
       requestBody:
-        description: Expecting list of location ids to merge.
+        description: Request user to input list of location ids to merge.
         required: true
         content:
           application/json:
@@ -727,9 +750,9 @@ paths:
                 - 34
       responses:
         '200':
-          description: Successful merge
+          description: Successful activity result ; Successful merge
         '422':
-          description: Merge failed
+          description: Activity results ; Merge failed
           content:
             application/json:
               schema:
@@ -746,10 +769,10 @@ paths:
     post:
       tags:
         - Top Menu. Bookings
-      summary: Booking statuses changing
+      summary: This endpoint is used to change Booking statuses 
       operationId: setBookingStatuses
       requestBody:
-        description: Expecting list of new statuses and booking ids to change
+        description: Request user to input list of new statuses and booking ids to change
         required: true
         content:
           application/json:
@@ -781,7 +804,7 @@ paths:
       responses:
         '200':
           description: >-
-            Operation result. Empty if no errors and processing more than one
+            Successful activity result ; Empty if no errors and processing more than one
             booking.
           content:
             application/json:
@@ -804,10 +827,10 @@ paths:
     post:
       tags:
         - Top Menu. Bookings
-      summary: Booking position changing
+      summary: This endpoint is used to change Booking position 
       operationId: setBookingPosition
       requestBody:
-        description: Expecting booking id and new position to set
+        description: Request user to input id and new position to set
         required: true
         content:
           application/json:
@@ -828,7 +851,7 @@ paths:
                 position: 3
       responses:
         '200':
-          description: Operation result.
+          description: Successful activity result
           content:
             application/json:
               schema:
@@ -840,91 +863,91 @@ paths:
               example:
                 success: true
         '404':
-          description: If booking not found
+          description: Activity results ; booking not found
   '/sessions/{scheduleId}':
     delete:
       tags:
         - Top Menu. Bookings. Sessions
-      summary: Booking session canceling
+      summary: This endpoint is used to cancel Booking session 
       operationId: cancelBookingSession
       parameters:
         - name: scheduleId
           in: path
-          description: Schedule ID
+          description: Request user to input Schedule ID
           required: true
           schema:
             type: integer
         - name: date
           in: query
-          description: 'Date in format "Y-m-d", like "2019-03-27"'
+          description: Request user to input Date (Y-M-D)  e.g  '2019-03-27'
           required: true
           schema:
             type: string
       responses:
         '200':
-          description: Returned if no errors happen
+          description: Successful activity 
           content:
             application/json:
               schema:
                 type: object
         '404':
-          description: If schedule not found
+          description: Activity results ; Schedule not found
   '/sessions/{scheduleId}/restore':
     get:
       tags:
         - Top Menu. Bookings. Sessions
-      summary: Booking session restoring
+      summary: This endpoint is used to restore Booking session 
       operationId: restoreBookingSession
       parameters:
         - name: scheduleId
           in: path
-          description: Schedule ID
+          description: Request user to input Schedule ID
           required: true
           schema:
             type: integer
         - name: date
           in: query
-          description: 'Date in format "Y-m-d", like "2019-03-27"'
+          description: Request user to input Date (Y-M-D)  e.g  2019-03-27
           required: true
           schema:
             type: string
       responses:
         '200':
-          description: Returned if no errors happen
+          description: Successful activity 
           content:
             application/json:
               schema:
                 type: object
         '404':
-          description: If schedule not found
+          description: Activity results ; Schedule not found
   /calendar/sessions/blocks:
     get:
       tags:
         - Top Menu. Bookings. Session Blocks
-      summary: Booking session blocks list
+      summary: This endpoint is used to  list blocks Booking sessions  
       operationId: getBookingSessionBlocksList
       parameters:
         - name: scheduleId
           in: query
-          description: Schedule ID
+          description: Request user to input Schedule ID
           required: true
           schema:
             type: integer
         - name: date
           in: query
-          description: 'Date in format "Y-m-d", like "2019-03-27"'
+          description: Request user to input Date (Y-M-D)  e.g  2019-03-27
           required: true
           schema:
             type: string
         - name: optionId
           in: query
-          description: Schedule Price group ID
+          description: Request user to input Schedule Price group ID
           required: true
           schema:
             type: integer
       responses:
         '200':
-          description: Return blocks list and modal form configs
+          description: Successful activity result ; Return blocks list and model form configs
           content:
             application/json:
               schema:
@@ -939,16 +962,16 @@ paths:
                     type: boolean
                     description: Whether editing available or not
         '404':
-          description: If target session not found
+          description: Activity results ; target session not found
   /company/tour-category:
     post:
       tags:
         - Tour Setup. Step General
-      summary: Add new category
+      summary: This endpoint is used to Add new category
       description: Created category must be added at the end of categories list on frontend
       operationId: addTourCategory
       requestBody:
-        description: Expecting object with `tour_id` and `names` fields
+        description: Request user to input object with `tour_id` and `names` fields
         required: true
         content:
           application/json:
@@ -987,7 +1010,7 @@ paths:
                     name: Category
       responses:
         '200':
-          description: Created tour category
+          description: Successful activity result ; Created tour category
           content:
             application/json:
               schema:
@@ -1031,18 +1054,18 @@ paths:
     post:
       tags:
         - Tour Setup. Step Tour Options
-      summary: Validate tour option names
+      summary: This endpoint is used to Validate tour option names
       description: Validate tour option names
       operationId: tourPriceGroupValidate
       parameters:
         - name: tourId
           in: path
-          description: Tour ID
+          description: Request user to input Tour ID
           required: true
           schema:
             type: string
       requestBody:
-        description: Expecting object current tour model and option names to validate
+        description: Request user to input object current tour model and option names to validate
         required: true
         content:
           application/json:
@@ -1091,7 +1114,7 @@ paths:
                       name: Tour option
       responses:
         '200':
-          description: Validated tour option with errors
+          description: Successful activity result ; Validated tour option 
           content:
             application/json:
               schema:
@@ -1110,13 +1133,13 @@ paths:
     post:
       tags:
         - Tour Setup. Step Tour Options
-      summary: Validate tour option deletion
-      description: Validate tour option deletion
+      summary: This endpoint is used to validate tour option deletion
+      description: Validate tour deletion option.
       operationId: tourPriceGroupValidateDeletion
       parameters:
         - name: tourId
           in: path
-          description: Tour ID
+          description: Request user to input Tour ID
           required: true
           schema:
             type: string
@@ -1139,9 +1162,9 @@ paths:
                 - optionIndexToDelete
       responses:
         '200':
-          description: When deletion available
+          description: Successful activity result ; deletion available
         '422':
-          description: When deletion unavailable
+          description: Activity results ; deletion unavailable
           content:
             application/json:
               schema:
@@ -1154,13 +1177,13 @@ paths:
     post:
       tags:
         - Tour Setup. Step Tour Options
-      summary: Cloning tour option names
+      summary: This endpoint is used to Clone tour option names
       description: Cloning tour option names
       operationId: tourPriceGroupCloning
       parameters:
         - name: tourId
           in: path
-          description: Tour ID
+          description: Request user to input Tour ID
           required: true
           schema:
             type: string
@@ -1186,7 +1209,7 @@ paths:
                 optionIndexToClone: 1
       responses:
         '200':
-          description: New list of tour options with cloned tour option
+          description: Successful activity result ; New list of tour options with cloned tour option
           content:
             application/json:
               schema:
@@ -1234,11 +1257,11 @@ paths:
     get:
       tags:
         - Tour Setup. Step People & Price
-      summary: List of customer groups
+      summary: This endpoint is used to list of customer groups
       operationId: getCustomerGroupsList
       responses:
         '200':
-          description: List of customer groups
+          description: Successful activity result ; List of customer groups
           content:
             application/json:
               schema:
@@ -1263,11 +1286,11 @@ paths:
     post:
       tags:
         - Tour Setup. Step People & Price
-      summary: Create customer group
+      summary: This endpoint is used to create customer group
       operationId: createCustomerGroup
       responses:
         '200':
-          description: New customer group
+          description: Successful activity result ; New customer group
           content:
             application/json:
               schema:
@@ -1290,23 +1313,23 @@ paths:
                     name:
                       type: string
         '422':
-          description: Model with validation errors
+          description: Activity results ; Model with validation errors
   '/company/customer-groups/{id}':
     parameters:
       - name: id
         in: path
-        description: Customer group ID
+        description: Request user to input Customer group ID
         required: true
         schema:
           type: integer
     get:
       tags:
         - Tour Setup. Step People & Price
-      summary: Single customer group
+      summary: This endpoint is used to get Single customer group
       operationId: getCustomerGroup
       responses:
         '200':
-          description: Customer group model
+          description: Successful activity result ; Customer group model
           content:
             application/json:
               schema:
@@ -1329,15 +1352,15 @@ paths:
                     name:
                       type: string
         '404':
-          description: Customer group not found
+          description: Activity results ; Customer group not found
     put:
       tags:
         - Tour Setup. Step People & Price
-      summary: Update customer group
+      summary: This endpoint is used to Update customer group
       operationId: updateCustomerGroup
       responses:
         '200':
-          description: Updated customer group
+          description: Successful activity result ; Updated customer group
           content:
             application/json:
               schema:
@@ -1360,28 +1383,28 @@ paths:
                     name:
                       type: string
         '404':
-          description: Customer group not found
+          description: Activity results ; Customer group not found
         '422':
-          description: Model with validation errors
+          description: Activity results ; Model with validation errors
     delete:
       tags:
         - Tour Setup. Step People & Price
-      summary: Delete customer group
+      summary: This endpoint is used to delete customer group
       operationId: deleteCustomerGroup
       responses:
         '204':
           description: Successful customer group deletion
         '404':
-          description: Customer group not found
+          description: Activity results ; Customer group not found
   /company/toursetup/fees-taxes:
     get:
       tags:
         - Tour Setup. Step People & Price
-      summary: Current company fees and taxes list
+      summary: This endpoint is used to get Current company fees and taxes list
       operationId: getFeesTaxesList
       responses:
         '200':
-          description: Fees and taxes list
+          description: Successful activity result ; Fees and taxes list
           content:
             application/json:
               schema:
@@ -1441,14 +1464,14 @@ paths:
     parameters:
       - name: id
         in: path
-        description: Tour ID
+        description: Request Tour ID
         required: true
         schema:
           type: string
     post:
       tags:
         - Tour Setup. Step People & Price
-      summary: Dynamic price validation
+      summary: This endpoint is used for dynamic price validation
       operationId: validateDynamicPrice
       requestBody:
         required: true
@@ -1470,13 +1493,13 @@ paths:
                       $ref: '#/components/schemas/DynamicPrice'
       responses:
         '200':
-          description: Fees and taxes list
+          description: Successful activity result ; Fees and taxes list
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/DynamicPrice'
         '422':
-          description: Price model with validation errors
+          description: Activity results ; Price model with validation errors
           content:
             application/json:
               schema:
@@ -1485,14 +1508,14 @@ paths:
     parameters:
       - name: id
         in: path
-        description: Tour ID
+        description: Request Tour ID
         required: true
         schema:
           type: string
     post:
       tags:
         - Tour Setup. Step People & Price
-      summary: Participants validation
+      summary: This endpoint is used for participants validation
       operationId: validateParticipants
       requestBody:
         required: true
@@ -1517,7 +1540,7 @@ paths:
                     type: object
       responses:
         '200':
-          description: Validation result
+          description: Successful activity result ; Validation result
           content:
             application/json:
               schema:
@@ -1536,16 +1559,16 @@ paths:
                     items:
                       type: object
         '422':
-          description: Participant models with validation errors
+          description: Activity results ; Participant models with validation errors
   /tour-setup/cancellation/select-list:
     get:
       tags:
         - Tour Setup. Step Payment & Deposit
-      summary: List of company cancellations
+      summary: This endpoint is used to list of company cancellations
       operationId: getCompanyCancellations
       responses:
         '200':
-          description: List of cancellations
+          description: Successful activity result ; List of cancellations
           content:
             application/json:
               schema:
@@ -1561,11 +1584,11 @@ paths:
     get:
       tags:
         - Tour Setup. Step Payment & Deposit
-      summary: Get new cancellation model
+      summary: This endpoint is used to get new cancellation model
       operationId: getNewCustomCancellation
       responses:
         '200':
-          description: New custom cancellation model
+          description: Successful activity result ; New custom cancellation model
           content:
             application/json:
               schema:
@@ -1573,7 +1596,7 @@ paths:
     post:
       tags:
         - Tour Setup. Step Payment & Deposit
-      summary: Create customer group
+      summary: This endpoint is used to create customer group
       operationId: createCustomCancellation
       requestBody:
         required: true
@@ -1583,13 +1606,13 @@ paths:
               $ref: '#/components/schemas/Cancellation'
       responses:
         '200':
-          description: New custom cancellation
+          description: Successful activity result ; New custom cancellation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Cancellation'
         '422':
-          description: Model with validation errors
+          description: Activity results ; Model with validation errors
           content:
             application/json:
               schema:
@@ -1598,28 +1621,28 @@ paths:
     parameters:
       - name: id
         in: path
-        description: Custom cancellation ID
+        description: Request Custom cancellation ID
         required: true
         schema:
           type: integer
     get:
       tags:
         - Tour Setup. Step Payment & Deposit
-      summary: Get single custom cancellation
+      summary: This endpoint is used to get single custom cancellation
       operationId: getCustomCancellation
       responses:
         '200':
-          description: Customer group model
+          description: Successful activity result ; Customer group model
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Cancellation'
         '404':
-          description: Custom cancellation not found
+          description: Activity results ; Custom cancellation not found
     put:
       tags:
         - Tour Setup. Step Payment & Deposit
-      summary: Update custom cancellation
+      summary: This endpoint is used to update custom cancellation
       operationId: updateCustomCancellation
       requestBody:
         required: true
@@ -1629,15 +1652,15 @@ paths:
               $ref: '#/components/schemas/Cancellation'
       responses:
         '200':
-          description: Updated custom cancellation
+          description: Successful activity result ; Updated custom cancellation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Cancellation'
         '404':
-          description: Custom cancellation not found
+          description: Activity results ; Custom cancellation not found
         '422':
-          description: Model with validation errors
+          description: Activity results ; Model with validation errors
           content:
             application/json:
               schema:
@@ -1645,33 +1668,33 @@ paths:
     delete:
       tags:
         - Tour Setup. Step Payment & Deposit
-      summary: Delete custom cancellation
+      summary: This endpoint is used to delete custom cancellation
       operationId: deleteCustomCancellation
       responses:
         '204':
           description: Successful custom cancellation deletion
         '404':
-          description: Custom cancellation not found
+          description: Activity results ; Custom cancellation not found
   /reports/views:
     get:
       tags:
         - Reports - Views
-      summary: List of existing views for active company
+      summary: This endpoint is used to list of existing views for an active company
       description: ''
       operationId: listViews
       responses:
         '200':
-          description: List of views.
+          description: Successful activity result ; List of views.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ReportViewList'
         '404':
-          description: Active company not found
+          description: Activity results ; Active company not found
     post:
       tags:
         - Reports - Views
-      summary: Create new View
+      summary: This endpoint is used to create new view
       operationId: createView
       requestBody:
         description: Expecting object with `name` field
@@ -1689,45 +1712,45 @@ paths:
                 name: Some custom view
       responses:
         '200':
-          description: Created View model
+          description: Successful activity result ; Created View model
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ReportView'
         '404':
-          description: Active company not found
+          description: Activity results ; Active company not found
   '/reports/views/{viewId}':
     get:
       tags:
         - Reports - Views
-      summary: Get view by ID
+      summary: This endpoint is used to get view by ID
       operationId: getView
       parameters:
         - name: viewId
           in: path
-          description: View ID
+          description: Request view ID
           required: true
           schema:
             type: integer
             format: int64
       responses:
         '200':
-          description: View model
+          description: Successful activity result ; View model
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ReportView'
         '404':
-          description: Active company or View not found
+          description: Activity result ; Active company or View not found
     put:
       tags:
         - Reports - Views
-      summary: Update view by ID
+      summary: This endpoint is used to update view by ID
       operationId: updateView
       parameters:
         - name: viewId
           in: path
-          description: View ID
+          description: Request view ID
           required: true
           schema:
             type: integer
@@ -1748,44 +1771,44 @@ paths:
                 name: Some custom view
       responses:
         '200':
-          description: Updated View model
+          description: Successful activity result ; Updated View model
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ReportView'
         '404':
-          description: View not found
+          description: Activity results ; View not found
     delete:
       tags:
         - Reports - Views
-      summary: Delete view by ID
+      summary: This endpoint is used to delete view by ID
       operationId: deleteView
       parameters:
         - name: viewId
           in: path
-          description: View ID
+          description: Request view ID
           required: true
           schema:
             type: integer
             format: int64
       responses:
         '200':
-          description: View model
+          description: Successful activity result ; View model
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ReportView'
         '404':
-          description: View not found
+          description: Activity results ; View not found
   /bookings:
     get:
       tags:
         - Booking
-      summary: Initial model for new booking
+      summary: This endpoint is used to get Initial model for new booking
       operationId: getNewBooking
       responses:
         '200':
-          description: Prepared model
+          description: Successful activity result ; Prepared model
           content:
             application/json:
               schema:
@@ -1793,7 +1816,7 @@ paths:
     post:
       tags:
         - Booking
-      summary: Reload booking model with new data
+      summary: This endpoint is used to reload booking model with new data
       operationId: reloadBooking
       requestBody:
         description: Expecting booking form model
@@ -1804,7 +1827,7 @@ paths:
               $ref: '#/components/schemas/BookingFormRequest'
       responses:
         '200':
-          description: Reloaded booking form model
+          description: Successful activity result ; Reloaded booking form model
           content:
             application/json:
               schema:
@@ -1812,7 +1835,7 @@ paths:
     put:
       tags:
         - Booking
-      summary: Create booking
+      summary: This endpoint is used to create booking
       operationId: createBooking
       requestBody:
         description: Expecting booking form model.
@@ -1823,13 +1846,13 @@ paths:
               $ref: '#/components/schemas/BookingFormRequest'
       responses:
         '200':
-          description: Created booking form model
+          description: Successful activity result ; Created booking form model
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/BookingFormResponse'
         '422':
-          description: Model with validation errors
+          description: Activity results ; Model with validation errors
           content:
             application/json:
               schema:
@@ -1839,9 +1862,12 @@ paths:
       tags:
         - Booking
       summary: >-
-        Check if all required fields are filled for new booking. Use
-        `api/marketplace/bookings/check-required-fields` for marketplace
-        requests, `api/wl/bookings/check-required-fields` - for wl.
+        To check if all required fields are filled for new booking.
+           (for marketplace)
+        `api/marketplace/bookings/check-required-fields` 
+        requests, 
+            (for Wl)
+        `api/wl/bookings/check-required-fields` - .
       operationId: checkRequiredFieldsNewBooking
       requestBody:
         description: Expecting booking form model
@@ -1852,7 +1878,7 @@ paths:
               $ref: '#/components/schemas/BookingFormRequest'
       responses:
         '200':
-          description: Check result
+          description: Successful activity result ; Check result
           content:
             application/json:
               schema:
@@ -1865,27 +1891,27 @@ paths:
       - name: id
         in: path
         required: true
-        description: Booking id
+        description: Request Booking id
         schema:
           type: string
     get:
       tags:
         - Booking
-      summary: Get model for existing booking
+      summary: This endpoint is used to get model for existing booking
       operationId: getBooking
       responses:
         '200':
-          description: Booking form model
+          description: Successful activity result ; Booking form model
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/BookingFormResponse'
         '404':
-          description: When booking not found
+          description: Activity results ; Booking not found
     put:
       tags:
         - Booking
-      summary: Update existed booking
+      summary: This endpoint is used to update existing booking
       operationId: updateBooking
       requestBody:
         description: Expecting booking form model
@@ -1900,11 +1926,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BookingFormResponse'
-          description: Updated booking form model
+          description:  Successful activity result ; Updated booking form model
         '404':
-          description: When booking not found
+          description: Activity results ; Booking not found
         '422':
-          description: Model with validation errors
+          description: Activity results ; Model with validation errors
           content:
             application/json:
               schema:
@@ -1922,9 +1948,13 @@ paths:
         - Booking
       summary: >-
         Check if all required fields are filled for existing booking. Use
-        `api/marketplace/bookings/{id}/check-required-fields` for marketplace
-        requests, `api/wl/bookings/{id}/check-required-fields` - for wl,
-        `api/booking-view/bookings/{id}/check-required-fields` - for booking
+        (for marketplace)
+        `api/marketplace/bookings/{id}/check-required-fields` 
+        requests, 
+        (for wl)
+        `api/wl/bookings/{id}/check-required-fields` - ,
+        (for booking)
+        `api/booking-view/bookings/{id}/check-required-fields` - 
         view
       operationId: checkRequiredFieldsExistingBooking
       requestBody:
@@ -1936,7 +1966,7 @@ paths:
               $ref: '#/components/schemas/BookingFormRequest'
       responses:
         '200':
-          description: Check result
+          description: Successful activity result ; Check result
           content:
             application/json:
               schema:
@@ -1962,7 +1992,7 @@ paths:
       operationId: getBookingToursList
       responses:
         '200':
-          description: List of tours indexed by their ids
+          description: Successful activity result ; List of tours indexed by their ids
           content:
             application/json:
               schema:
@@ -1974,13 +2004,13 @@ paths:
       - name: id
         in: path
         required: true
-        description: Booking id
+        description: Request Booking id
         schema:
           type: string
       - name: tourId
         in: query
         required: true
-        description: Tour id
+        description: Request Tour id
         schema:
           type: string
       - name: agencyId
@@ -1998,7 +2028,7 @@ paths:
       operationId: getBookingTourOptionsList
       responses:
         '200':
-          description: List of tour options indexed by their ids
+          description: Successful activity result ; List of tour options indexed by their ids
           content:
             application/json:
               schema:
@@ -2006,7 +2036,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/BookingTourOption'
         '422':
-          description: Validation errors list
+          description: Activity results ; Validation errors list
           content:
             application/json:
               schema:
@@ -2056,7 +2086,7 @@ paths:
       operationId: getBookingDatesList
       responses:
         '200':
-          description: List of dates with availability status
+          description: Successful activity result ; List of dates with availability status
           content:
             application/json:
               schema:
@@ -2068,7 +2098,7 @@ paths:
                 '2019-10-05': day_have-bookings
                 '2019-10-06': day_available
         '422':
-          description: Validation errors list
+          description: Activity results ; Validation errors list
           content:
             application/json:
               schema:
@@ -2078,19 +2108,19 @@ paths:
       - name: id
         in: path
         required: true
-        description: Booking id
+        description: Request Booking id
         schema:
           type: string
       - name: tourId
         in: query
         required: true
-        description: Tour id
+        description: Request Tour id
         schema:
           type: string
       - name: tourOptionId
         in: query
         required: true
-        description: Tour option id
+        description: Request Tour option id
         schema:
           type: integer
       - name: date
@@ -2113,7 +2143,7 @@ paths:
       operationId: getBookingSessionsList
       responses:
         '200':
-          description: List of sessions available for booking
+          description: Successful activity result ; List of sessions available for booking
           content:
             application/json:
               schema:
@@ -2122,7 +2152,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/BookingTimeSession'
         '422':
-          description: Validation errors list
+          description: Activity results ; Validation errors list
           content:
             application/json:
               schema:
@@ -2169,15 +2199,15 @@ paths:
         - Booking. Settings
       summary: >-
         Return booking with loaded default values. Use
-        `/api/bookings/settings/booking` for new booking.
-        Next request - '/bookings/{id}/settings/agent-fields-config' (if
-        supplier changed agency id),
+        `/api/bookings/settings/booking` for new booking. Next request -
+        '/bookings/{id}/settings/agent-fields-config' (if supplier changed
+        agency id),
          '/bookings/{id}/settings/pickup-place-config' (on pick-up location changing/selecting)
          or '/bookings/{id}/settings/drop-off-place-config' (on drop-off location changing/selecting)
       operationId: getBookingInitialSettings
       responses:
         '200':
-          description: List of sessions available for booking
+          description: Successful activity result ; List of sessions available for booking
           content:
             application/json:
               schema:
@@ -2186,7 +2216,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Booking'
         '422':
-          description: Validation errors list
+          description: Activity results ; Validation errors list
           content:
             application/json:
               schema:
@@ -2225,13 +2255,13 @@ paths:
       operationId: getBookingAgentFieldsConfig
       responses:
         '200':
-          description: Booking fields config
+          description: Successful activity result ; Booking fields config
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/BookingFieldsConfig'
         '422':
-          description: Validation errors list
+          description: Activity results ; Validation errors list
           content:
             application/json:
               schema:
@@ -2302,13 +2332,13 @@ paths:
       operationId: getBookingPickupPlaceConfig
       responses:
         '200':
-          description: Booking pick-up place config
+          description: Successful activity result ; Booking pick-up place config
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/BookingPickupPlaceConfig'
         '422':
-          description: Validation errors list
+          description: Activity results ; Validation errors list
           content:
             application/json:
               schema:
@@ -2369,13 +2399,13 @@ paths:
       operationId: getBookingDropOffPlaceConfig
       responses:
         '200':
-          description: Booking drop-off place config
+          description: Successful activity result ; Booking drop-off place config
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/BookingDropOffPlaceConfig'
         '422':
-          description: Validation errors list
+          description: Activity results ; Validation errors list
           content:
             application/json:
               schema:
@@ -2456,11 +2486,11 @@ paths:
     get:
       tags:
         - Booking View
-      summary: Return paginated list of company bookgins
+      summary: This endpoint willReturn paginated list of company bookgins
       operationId: getBookingViewList
       responses:
         '200':
-          description: Bookings paginated list
+          description: Successful activity result ; Bookings paginated list
           headers:
             X-Pagination-Current-Page:
               schema:
@@ -2510,7 +2540,7 @@ paths:
             type: integer
       tags:
         - Calendar. Session messages
-      summary: Send message for session
+      summary: This endpoint is used to Send message for session
       operationId: addSessionMessage
       requestBody:
         description: Expecting message models
@@ -2538,7 +2568,7 @@ paths:
                   - image: 384
       responses:
         '200':
-          description: Created message models
+          description: Successful activity result ; Created message models
           content:
             application/json:
               schema:
@@ -2603,12 +2633,12 @@ paths:
                     imageUrl: >-
                       /attachments/2019-07-03/959618fe579d48d76cb565dffa930866.jpg
         '422':
-          description: Message models with errors
+          description: Activity results ; Message models with errors
   /calendar/sessions/comments/upload:
     post:
       tags:
         - Calendar. Session messages
-      summary: Upload image for session message
+      summary: This endpoint is used to Upload image for session message
       operationId: uploadSessionMessageImage
       requestBody:
         description: Expecting file data
@@ -2623,7 +2653,7 @@ paths:
                   description: Uploading file binary
       responses:
         '200':
-          description: Successfull uploading
+          description: Successful activity result ; Successfull uploading
           content:
             application/json:
               schema:
@@ -2639,7 +2669,7 @@ paths:
                     type: string
                     description: Attachment url. To use as imageUrl field in message
         '422':
-          description: Failed to upload file
+          description: Activity results ; Failed to upload file
           content:
             application/json:
               schema:
@@ -2649,7 +2679,7 @@ paths:
     post:
       tags:
         - Employees
-      summary: Get paginated users list with filtering
+      summary: This endpoint is used to Get paginated users list with filtering
       operationId: getEmployees
       requestBody:
         description: Expecting file to upload
@@ -2683,7 +2713,7 @@ paths:
                   - 65
       responses:
         '200':
-          description: Users list
+          description: Successful activity result ; Users list
           headers:
             X-Pagination-Current-Page:
               schema:
@@ -2712,11 +2742,11 @@ paths:
     get:
       tags:
         - Employees
-      summary: Get employees filter data
+      summary: This endpoint is used to Get employees filter data
       operationId: getEmployeesFilterValues
       responses:
         '200':
-          description: Filter values
+          description: Successful activity result ; Filter values
           content:
             application/json:
               schema:
@@ -2741,11 +2771,11 @@ paths:
     get:
       tags:
         - Employees. Documents
-      summary: List of current user documents
+      summary: This endpoint will get List of current user documents
       operationId: getCompanyUserDocuments
       responses:
         '200':
-          description: Documents list
+          description: Successful activity result ; Documents list
           content:
             application/json:
               schema:
@@ -2753,11 +2783,11 @@ paths:
                 items:
                   $ref: '#/components/schemas/CompanyUserDocument'
         '400':
-          description: When current company or company user not found
+          description: Activity results ; When current company or company user not found
     post:
       tags:
         - Employees. Documents
-      summary: Uploading new document
+      summary: This endpoint is used for Uploading new document
       operationId: uploadCompanyUserDocument
       requestBody:
         description: Expecting file to upload
@@ -2774,13 +2804,13 @@ paths:
                 - file
       responses:
         '200':
-          description: Attachment model for uploaded file
+          description: Successful activity result ; Attachment model for uploaded file
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/CompanyUserDocument'
         '422':
-          description: Uploading error
+          description: Activity results ; Uploading error
           content:
             application/json:
               schema:
@@ -2806,17 +2836,17 @@ paths:
     get:
       tags:
         - Employees. Documents
-      summary: File content to view
+      summary: This endpoint is used to get File content to view
       operationId: getCompanyUserDocumentToView
       responses:
         '200':
-          description: File content
+          description: Successful activity result ; File content
         '404':
-          description: When document or company user not found
+          description: Activity results ; When document or company user not found
     put:
       tags:
         - Employees. Documents
-      summary: Update company user document name
+      summary: This endpoint is used to Update company user document name
       operationId: updateCompanyUserDocument
       requestBody:
         description: Expecting name attribute
@@ -2833,15 +2863,15 @@ paths:
                 - name
       responses:
         '200':
-          description: Updated model
+          description: Successful activity result ; Updated model
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/CompanyUserDocument'
         '404':
-          description: When document or company user not found
+          description: Activity results ; When document or company user not found
         '422':
-          description: Validated model with errors
+          description: Activity results ; Validated model with errors
           content:
             application/json:
               schema:
@@ -2849,15 +2879,15 @@ paths:
     delete:
       tags:
         - Employees. Documents
-      summary: Delete company user document
+      summary: This endpoint is used to Delete company user document
       operationId: deleteCompanyUserDocument
       responses:
         '200':
-          description: Deletion successfull
+          description:  Successful activity result ;Deletion successfull
         '404':
-          description: When document or company user not found
+          description: Activity results ; When document or company user not found
         '422':
-          description: Deletion failed
+          description:  Activity results ; Deletion failed
   '/employees/{userId}/documents/{id}/download':
     parameters:
       - name: userId
@@ -2875,18 +2905,18 @@ paths:
     get:
       tags:
         - Employees. Documents
-      summary: File content to download
+      summary: This endpoint is used to get File content to download
       operationId: getCompanyUserDocumentToDownload
       responses:
         '200':
-          description: File content
+          description: Successful activity result ; File content
         '404':
-          description: When document or company user not found
+          description: Activity results ; When document or company user not found
   /company/invoices:
     get:
       tags:
         - Invoices
-      summary: Paginated list of company invoices
+      summary: This endpoint is used to get Paginated list of company invoices
       operationId: getInvoicesList
       parameters:
         - name: page
@@ -2921,7 +2951,7 @@ paths:
             type: integer
       responses:
         '200':
-          description: Invoice models
+          description: Successful activity result ; Invoice models
           headers:
             X-Pagination-Current-Page:
               schema:
@@ -2944,12 +2974,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/InvoiceFromList'
         '404':
-          description: When active company not found
+          description: Activity results ; When active company not found
   /company/invoices/totals:
     get:
       tags:
         - Invoices
-      summary: Total values for filtered invoices
+      summary: This endpoint is used to Total values for filtered invoices
       operationId: getInvoicesTotals
       parameters:
         - name: search
@@ -2974,7 +3004,7 @@ paths:
             type: integer
       responses:
         '200':
-          description: Total values
+          description: Successful activity result ; Total values
           content:
             application/json:
               schema:
@@ -2989,12 +3019,12 @@ paths:
                   allCount:
                     type: number
         '404':
-          description: When active company not found
+          description: Activity results ; When active company not found
   /company/invoices/status-counts:
     get:
       tags:
         - Invoices
-      summary: Total counts by statuses for filtered invoices
+      summary: This endpoint is used to get Total counts by statuses for filtered invoices
       operationId: getInvoicesStatusCounts
       parameters:
         - name: search
@@ -3041,7 +3071,7 @@ paths:
     get:
       tags:
         - Invoice
-      summary: Get model for existing invoice
+      summary: This endpoint is used to Get model for existing invoice
       operationId: getInvoice
       responses:
         '200':
@@ -3055,7 +3085,7 @@ paths:
     put:
       tags:
         - Invoice
-      summary: Update existed invoice
+      summary: This endpoint is used to Update existed invoice
       operationId: updateInvoice
       requestBody:
         description: Expecting invoice form model
@@ -3096,7 +3126,7 @@ paths:
     get:
       tags:
         - Invoice
-      summary: Invoice email send form initial data
+      summary: This endpoint is used toInvoice email send form initial data
       operationId: sendInvoiceFormInitial
       responses:
         '200':
@@ -3110,7 +3140,7 @@ paths:
     post:
       tags:
         - Invoice
-      summary: Validating invoice email send form
+      summary: This endpoint is used to Validating invoice email send form
       operationId: sendInvoiceFormValidation
       requestBody:
         description: Expecting invoice email send form
@@ -3125,7 +3155,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/InvoiceEmailSendForm'
+               $ref: '#/components/schemas/InvoiceEmailSendForm'
         '404':
           description: When invoice not found
         '422':
@@ -3137,7 +3167,7 @@ paths:
     put:
       tags:
         - Invoice
-      summary: Sending invoice
+      summary: This endpoint is used for Sending invoice
       operationId: sendInvoice
       requestBody:
         description: Expecting invoice email send form or nothing
@@ -3165,7 +3195,7 @@ paths:
     put:
       tags:
         - Invoice
-      summary: Setting invoice void
+      summary:  This endpoint is used to Setting invoice void
       operationId: setVoidInvoice
       responses:
         '200':
@@ -3187,7 +3217,7 @@ paths:
     get:
       tags:
         - Invoice. Payments
-      summary: Invoice payments list
+      summary: This endpoint is used to get Invoice payments list
       operationId: getInvoicePayments
       responses:
         '200':
@@ -3204,7 +3234,7 @@ paths:
     post:
       tags:
         - Invoice. Payments
-      summary: Create invoice payment
+      summary: This endpoint is used to Create invoice payment
       operationId: createInvoicePayment
       responses:
         '200':
@@ -3238,7 +3268,7 @@ paths:
     get:
       tags:
         - Invoice. Payments
-      summary: View invoice payment
+      summary: This endpoint is used to View invoice payment
       operationId: getInvoicePayment
       responses:
         '200':
@@ -3252,7 +3282,7 @@ paths:
     put:
       tags:
         - Invoice. Payments
-      summary: Update invoice payment
+      summary: This endpoint is used to Update invoice payment
       operationId: updateInvoicePayment
       responses:
         '200':
@@ -3286,7 +3316,7 @@ paths:
     post:
       tags:
         - Invoice. Payments
-      summary: Splitting invoice payment
+      summary: This endpoint is used to Split invoice payment
       operationId: splitInvoicePayment
       requestBody:
         description: Expecting payment attributes
@@ -3339,7 +3369,7 @@ paths:
     post:
       tags:
         - Invoice. Payments
-      summary: Set invoice payment status
+      summary: This endpoint is used to Set invoice payment status
       operationId: setInvoicePaymentStatus
       requestBody:
         description: Expecting payment status
@@ -3372,7 +3402,7 @@ paths:
     get:
       tags:
         - Customer
-      summary: Customer bookings as paginated list
+      summary: This endpoint is used to get Customer bookings as paginated list
       operationId: getCustomerBookings
       responses:
         '200':
@@ -3419,7 +3449,7 @@ paths:
     get:
       tags:
         - Customer
-      summary: Single customer booking
+      summary: This endpoint is used to get Single customer booking
       operationId: getCustomerBooking
       responses:
         '200':
@@ -3434,7 +3464,7 @@ paths:
     post:
       tags:
         - Checkout
-      summary: Cart checkout
+      summary: This endpoint is used for Cart checkout
       operationId: cartCheckout
       requestBody:
         description: Expecting list of booking ids to checkout
@@ -3481,7 +3511,7 @@ paths:
     post:
       tags:
         - Checkout
-      summary: Change booking prices from cart
+      summary: This endpoint is used to Change booking prices from cart
       operationId: updateCartBookingPrices
       requestBody:
         description: Expecting list of booking custom prices
@@ -3541,7 +3571,7 @@ paths:
             type: string
       tags:
         - My Companies
-      summary: Paginated list of My Agents
+      summary: This endpoint is used to get Paginated list of My Agents
       operationId: getMyAgentsList
       responses:
         '200':
@@ -3596,7 +3626,7 @@ paths:
             type: string
       tags:
         - My Companies
-      summary: Paginated list of My Suppliers
+      summary: This endpoint is used to get Paginated list of My Suppliers
       operationId: getMySuppliersList
       responses:
         '200':
@@ -3637,7 +3667,7 @@ paths:
             type: integer
       tags:
         - My Companies
-      summary: Paginated list of My Agents
+      summary: This endpoint is used to PUT Paginated list of My Agents
       operationId: restoreInMyAgentsList
       responses:
         '200':
@@ -3646,7 +3676,7 @@ paths:
           description: When operation failed
   /calendar/transfer:
     get:
-      summary: Returns transfer session for date
+      summary: This endpoint is used to get Returns transfer session for date
       tags:
         - Transfer View
       responses:
@@ -3691,7 +3721,7 @@ paths:
             default: null
   /calendar/transfer/export:
     get:
-      summary: Export transfer for selected date
+      summary: This endpoint is used to Export transfer for selected date
       tags:
         - Transfer View
       responses:
@@ -3718,7 +3748,7 @@ paths:
   /calendar/transfer/resource-categories:
     summary: Endpoint for resource categories in transfer
     post:
-      summary: Add resource category to transfer
+      summary: This endpoint is used to Add resource category to transfer
       tags:
         - Transfer View
       parameters:
@@ -3755,7 +3785,7 @@ paths:
   '/calendar/transfer/resource-categories/{id}':
     summary: Endpoint for resource categories in transfer
     get:
-      summary: Get transfer resource category for transfer
+      summary: This endpoint is used to Get transfer resource category for transfer
       tags:
         - Transfer View
       parameters:
@@ -3785,7 +3815,7 @@ paths:
         '404':
           description: Transfer or resource category not found
     put:
-      summary: Update transfer resource category
+      summary: This endpoint is used to Update transfer resource category
       tags:
         - Transfer View
       parameters:
@@ -3820,7 +3850,7 @@ paths:
         '404':
           description: Transfer or resource category or resource category not found
     delete:
-      summary: Delete transfer resource category
+      summary: This endpoint is used to Delete transfer resource category
       tags:
         - Transfer View
       parameters:
@@ -3851,7 +3881,7 @@ paths:
                 type: object
   /calendar/transfer/resource-categories/link:
     post:
-      summary: Assign resources in category
+      summary: This endpoint is used to Assign resources in category
       tags:
         - Transfer View
       parameters:
@@ -3894,7 +3924,7 @@ paths:
           description: Transfer or resource category not found
   /calendar/transfer/resource-categories/pin:
     post:
-      summary: Pin resource category
+      summary: This endpoint is used to Pin resource category
       tags:
         - Transfer View
       parameters:
@@ -3931,7 +3961,7 @@ paths:
                 type: object
   /calendar/transfer/resource-categories/unpin:
     post:
-      summary: Unpin resource category
+      summary: This endpoint is used to Unpin resource category
       tags:
         - Transfer View
       parameters:
@@ -3962,7 +3992,7 @@ paths:
           description: Transfer or resource category not found
   /calendar/transfer/resource-categories/export:
     get:
-      summary: Export resource category for date
+      summary: This endpoint is used to Export resource category for date
       tags:
         - Transfer View
       parameters:
@@ -3993,7 +4023,7 @@ paths:
           description: Transfer or resource category not found
   /calendar/transfer/resources/bookings:
     post:
-      summary: Assign bookings to transfer resource
+      summary: This endpoint is used to Assign bookings to transfer resource
       tags:
         - Transfer View
       parameters:
@@ -4028,7 +4058,7 @@ paths:
                 type: object
   /calendar/transfer/resources/export:
     get:
-      summary: Export resource for date
+      summary: This endpoint is used to Export resource for date
       tags:
         - Transfer View
       parameters:
@@ -4059,7 +4089,7 @@ paths:
           description: Transfer or resource not found
   /calendar/transfer/bookings/delete:
     delete:
-      summary: Remove assigned booking from transfer resource
+      summary: This endpoint is used to Remove assigned booking from transfer resource
       tags:
         - Transfer View
       parameters:
