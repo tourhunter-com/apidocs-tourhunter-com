@@ -19,7 +19,7 @@ servers:
   - url: 'https://pro.tourhunter.com/api/'
     description: 'Production server'
   - url: 'https://pro.stage.tourhunter.com/api/'
-    description: 'Staging server (for tests)'
+    description: 'Staging server for testing'
 tags:
   - name: Authorization
     description: >
