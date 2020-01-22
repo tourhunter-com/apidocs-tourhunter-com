@@ -17,6 +17,9 @@ info:
   version: '1.0'
 servers:
   - url: 'https://pro.tourhunter.com/api/'
+    description: 'Production server'
+  - url: 'https://pro.stage.tourhunter.com/api/'
+    description: 'Staging server (for tests)'
 tags:
   - name: Authorization
     description: >
