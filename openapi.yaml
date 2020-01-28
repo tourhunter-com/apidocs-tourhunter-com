@@ -4329,33 +4329,37 @@ components:
           type: integer
           enum: [0,1,2,6]
           description: >
-            - 0 - Booking confirmed
+            * `0` - Booking confirmed
 
-            - 1 - Booking pending
+            * `1` - Booking pending
 
-            - 2 - Booking canceled
+            * `2` - Booking canceled
 
-            - 6 - Booking blocked
+            * `6` - Booking blocked
         transfer_status:
           type: integer
           enum: [0,1,2,3]
           description: >
-            - 0 - None
+            * `0` - None
 
-            - 1 - Picked up
+            * `1` - Picked up
 
-            - 2 - On the way
+            * `2` - On the way
 
-            - 3 - Dropped off
+            * `3` - Dropped off
         checkin_status:
           type: integer
           enum: [0,1,3]
           description: >
-            - 0 - None
+            * 0 - None
 
-            - 1 - Checked in
+            * 1 - Checked in
 
-            - 3 - No show
+            * 3 - No show
+        people:
+          type: array
+          items:
+            $ref: '#/components/schemas/BookingPeople'
         extras:
           type: array
           description: List of extras available for booking
@@ -5867,3 +5871,139 @@ components:
         visible:
           type: integer
           description: '1 - visible, 0 - invisible'
+    BookingPeople:
+      type: object
+      description: Partipicants category
+      properties:
+        id:
+          type: integer
+        customers_group_id:
+          type: integer
+          description: id of participant category
+        count:
+          type: integer
+          description: Number of partipicants in this category
+        price:
+          type: number
+        min:
+          type: integer
+          description: Minimum participants in this category required for booking
+        is_occupies:
+          type: integer
+          description: 1 if participants in this category occupy a seat
+          enum: [0,1]
+        name:
+          type: string
+          description: Category name
+        participants:
+          type: array
+          description: Partipicants information
+          items:
+            $ref: '#/components/schemas/BookingParticipant'
+    BookingParticipant:
+      type: object
+      description: Booking participant
+      properties:
+        id:
+          type: integer
+        is_main_customer:
+          type: integer
+          enum: [0,1]
+          description: 1 if this participant is a main customer
+        customerFields:
+          type: array
+          description: Booking customer fields
+          items:
+            $ref: '#/components/schemas/BookingCustomerFields'
+    BookingCustomerFields:
+      type: object
+      description: Booking customer field
+      properties:
+        id:
+          type: integer
+        fixed:
+          type: array
+          description: System fixed customer fields
+          items:
+            $ref: '#/components/schemas/BookingCustomerFieldSettings'
+        custom:
+          type: array
+          description: Custom customer fields
+          items:
+            $ref: '#/components/schemas/BookingCustomerFieldSettings'
+    BookingCustomerFieldSettings:
+      type: object
+      description: Booking customer field settings
+      properties:
+        askParticipant:
+          type: integer
+          description: 1 if field is required for every participant
+          enum: [0,1]
+        askMainCustomer:
+          type: integer
+          description: 1 if field is required for main customer
+          enum: [0,1]
+        field:
+          type: object
+          description: Field value
+          oneOf:
+            - $ref: '#/components/schemas/BookingCustomerFixedFieldValue'
+            - $ref: '#/components/schemas/BookingCustomerCustomFieldValue'
+    BookingCustomerFixedFieldValue:
+      type: object
+      description: Customer field value
+      properties:
+        id:
+          type: integer
+        tid:
+          type: string
+          description: System field name
+        name:
+          type: string
+          description: Displayed name
+        value:
+          type: string
+          description: Field value
+    BookingCustomerCustomFieldValue:
+      type: object
+      description: Customer field value
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          description: Field name
+        type:
+          type: string
+          description: Field type
+          enum: [text, select, checkbox, number, date, file]
+        value:
+          type: string
+        checked_by_default:
+          type: integer
+          description: >
+            Used for `checkbox` field type.
+            `1` if checkbox should be checked by default
+        url:
+          type: string
+          description: >
+            Used with `file` field type. Contains file url
+        choices:
+          type: array
+          items:
+            $ref: '#/components/schemas/BookingCustomerFieldChoice'
+    BookingCustomerFieldChoice:
+      type: object
+      description: >
+        Available choices for `select` customer field type
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        is_default:
+          type: integer
+          description: 1 if this option should be selected by default
+
