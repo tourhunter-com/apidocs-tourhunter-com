@@ -2388,7 +2388,12 @@ paths:
       - name: sort_by
         in: query
         required: true
-        description: Sort type
+        description: |
+          Order type. Param "date_from" or "date_to" must be specified.
+          Available types are:
+           * `0` - by booking creation date
+           * `1` - by booked date
+           * `2` - by last modification date. In this case "From/To" dates must be a timestamp values.
         schema:
           $ref: '#/components/schemas/BookingViewSortType'
       - name: viewType
@@ -2408,7 +2413,11 @@ paths:
           type: string
       - name: booking_status
         in: query
-        description: Booking status to filter
+        description: |
+          Booking status to filter
+          * `0` - Booking confirmed
+          * `1` - Booking pending
+          * `2` - Booking canceled
         schema:
           $ref: '#/components/schemas/BookingViewBookingStatus'
       - name: payment_status
@@ -2426,40 +2435,30 @@ paths:
         description: Tour category to filter
         schema:
           type: integer
-      - name: filter_by
-        in: query
-        description: |
-          Filter type for From/To Date filtering. Param "date_from" or "date_to"
-          must be specified. Available types are:
-           * `0` - by booking creation date
-           * `1` - by booked date
-           * `2` - by last modification date. In this case "From/To" dates must be a timestamp values.
-        schema:
-          $ref: '#/components/schemas/BookingViewFilterBy'
       - name: date_from
         in: query
-        description: Filter From Date for bookings. Param "filter_by" must be specified
+        description: Filter From Date for bookings. Param "sort_by" must be specified
         schema:
           type: string
       - name: date_to
         in: query
-        description: Filter To Date for bookings. Param "filter_by" must be specified
+        description: Filter To Date for bookings. Param "sort_by" must be specified
         schema:
           type: string
       - name: booked_by
         in: query
-        description: Filter by bookgin source field
+        description: Filter by booking source field
         schema:
           type: string
       - name: search
         in: query
-        description: 'Filter by bookgin Id, customer name or voucher'
+        description: 'Filter by booking id, customer name or voucher'
         schema:
           type: string
     get:
       tags:
         - Booking View
-      summary: Return paginated list of company bookgins
+      summary: Return paginated list of company bookings
       operationId: getBookingViewList
       responses:
         '200':
