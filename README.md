@@ -1,8 +1,8 @@
 <h1 align="center">TourHunter API Documentation</h1>
 
-Live: https://api.tourhunter.com
+Live: https://apidoc.tourhunter.com
 
-Specification: https://api.tourhunter.com/openapi.yaml
+Specification: https://apidoc.tourhunter.com/openapi.yaml
 
 The repository is a part of the [TourHunter Organization](https://github.com/tourhunter-com).
 
