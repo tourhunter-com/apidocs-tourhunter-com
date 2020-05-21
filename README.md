@@ -6,8 +6,6 @@ Specification: https://apidoc.tourhunter.com/openapi.yaml
 
 The repository is a part of the [TourHunter Organization](https://github.com/tourhunter-com).
 
-## Code of Conduct
-
 This project and everyone participating in it is governed by the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Contributing
